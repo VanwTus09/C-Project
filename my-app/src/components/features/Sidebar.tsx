@@ -4,16 +4,18 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import CreateRoom from "./CreateRoom";
+import Profile from "./Profile";
+import CreateRoom from "./CreateRoom"; // Nếu đã có file CreateRoom.tsx
 
 interface Room {
   id: string;
   name: string;
-  is_group: boolean;
+  avatar?: string;
 }
 
 export default function Sidebar() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,15 +25,17 @@ export default function Sidebar() {
       } = await supabase.auth.getUser();
       if (!user) return router.push("/");
 
-      const { data } = await supabase
-        .from("room_members")
-        .select("room_id, rooms(name, is_group, id)")
+      const { data: joinedRooms } = await supabase
+        .from("Room_user")
+        .select("room:room_id ( id, name, avatar )") // Lấy thông tin từ bảng Room
         .eq("user_id", user.id);
 
-      if (data) {
-        const formatted = data.map((r) => r.rooms).flat();
-        setRooms(formatted);
-      }
+      // if (error) {
+      //   console.error("Error loading rooms:");
+      //   return;
+      // }
+      const formatted = joinedRooms?.map((r) => r.room).flat() || [];
+      setRooms(formatted);
     };
 
     fetchRooms();
@@ -39,7 +43,17 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r p-4 space-y-4">
-      <h2 className="text-xl font-bold mb-4">💬 Phòng Chat</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold mb-2">💬 Phòng Chat</h2>
+        <button
+          onClick={() => setShowCreate(true)}
+          title="Tạo phòng mới"
+          className="text-blue-500 text-2xl"
+        >
+          ➕
+        </button>
+      </div>
+
       <div className="space-y-2">
         {rooms.map((room) => (
           <Link
@@ -51,7 +65,10 @@ export default function Sidebar() {
           </Link>
         ))}
       </div>
-      <CreateRoom/>
+
+      {showCreate && <CreateRoom onClose={() => setShowCreate(false)} />}
+
+      <Profile />
     </aside>
   );
 }

@@ -1,28 +1,26 @@
-'use client';
+"use client";
 
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/button';
-import { FcGoogle } from 'react-icons/fc'; // Google icon
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { FcGoogle } from "react-icons/fc";
 
-export default function AuthWithGoogle() {
+export default function LoginPage() {
   const handleLoginWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-       options: {
-      redirectTo: `${window.location.origin}/auth/callback`, // 👈 Redirect về callback
-    },
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/callback`,
+      },
     });
-    
     if (error) {
-      console.error('Lỗi đăng nhập:', error.message);
+      console.error("Lỗi đăng nhập:", error.message);
     }
   };
-
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center"
       style={{
-        backgroundImage: "url('/login.jpg')", // 👉 thay bằng ảnh của bạn (đặt trong /public)
+        backgroundImage: "url('/login.jpg')",
       }}
     >
       <div className="bg-white bg-opacity-90 p-8 rounded-xl shadow-xl text-center w-full max-w-md">

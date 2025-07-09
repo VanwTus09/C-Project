@@ -1,131 +1,99 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
   email: string;
 }
 
-export default function CreateRoom() {
+export default function CreateRoom({ onClose }: { onClose: () => void }) {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isGroup, setIsGroup] = useState(false);
-  const [groupName, setGroupName] = useState('');
-  const [error, setError] = useState('');
+  const [groupName, setGroupName] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    const loadUsers = async () => {
+    const fetchUsers = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data } = await supabase.from('profiles').select('id, email');
+      const { data } = await supabase.from("users").select("id, email");
       if (data && user) {
-        setUsers(data.filter((u) => u.id !== user.id)); // Không hiển thị chính mình
+        setUsers(data.filter((u) => u.id !== user.id)); // Bỏ mình ra
       }
     };
-    loadUsers();
+    fetchUsers();
   }, []);
 
   const toggleSelect = (id: string) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((uid) => uid !== id));
-    } else {
-      const updated = [...selectedIds, id];
-      setSelectedIds(updated);
-
-      // Tự chuyển sang nhóm nếu chọn >1
-      if (updated.length > 1) {
-        setIsGroup(true);
-      }
-    }
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
   const createRoom = async () => {
-    setError('');
+    setError("");
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    if (selectedIds.includes(user.id)) {
-      setError('Không thể chọn chính bạn để tạo phòng.');
+    const memberIds = [user.id, ...selectedIds];
+
+    if (selectedIds.length < 2) {
+      setError("Cần chọn ít nhất 2 người để tạo nhóm.");
       return;
     }
 
-    const memberIds = [user.id, ...selectedIds];
+    const name = groupName.trim() || generateGroupName();
 
-    if (!isGroup) {
-      if (selectedIds.length !== 1) {
-        setError('Phải chọn đúng 1 người để tạo chat 1-1.');
-        return;
-      }
+    const { data: room, error: insertError } = await supabase
+      .from("Room")
+      .insert({ name })
+      .select("*")
+      .single();
 
-      const { data } = await supabase.rpc('find_or_create_private_room', {
-        user1: user.id,
-        user2: selectedIds[0],
-      });
-
-      if (data) router.push(`/chat/${data}`);
-    } else {
-      if (selectedIds.length < 1 || !groupName.trim()) {
-        setError('Nhóm phải có ít nhất 2 người và tên nhóm.');
-        return;
-      }
-
-      const { data: room } = await supabase
-        .from('rooms')
-        .insert({ name: groupName.trim(), is_group: true })
-        .select()
-        .single();
-
-      if (room) {
-        await supabase.from('room_members').insert(
-          memberIds.map((id) => ({ room_id: room.id, user_id: id }))
-        );
-        router.push(`/chat/${room.id}`);
-      }
+    if (insertError || !room) {
+      setError("Không thể tạo nhóm.");
+      return;
     }
+
+    await supabase
+      .from("Room_user")
+      .insert(memberIds.map((id) => ({ room_id: room.id, user_id: id })));
+
+    onClose();
+    router.push(`/chat/${room.id}`);
+  };
+
+  const generateGroupName = () => {
+    const names = users
+      .filter((u) => selectedIds.includes(u.id))
+      .map((u) => u.email.split("@")[0]);
+    return names.join(", ");
   };
 
   return (
     <div className="p-4 border-t space-y-3">
-      <div>
-        <label className="font-semibold">Chế độ:</label>
-        <div className="flex gap-2 mt-1">
-          <button
-            className={`px-3 py-1 rounded ${!isGroup ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => {
-              setIsGroup(false);
-              setGroupName('');
-            }}
-          >
-            Chat 1-1
-          </button>
-          <button
-            className={`px-3 py-1 rounded ${isGroup ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => setIsGroup(true)}
-          >
-            Nhóm
-          </button>
-        </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Tạo nhóm chat</h2>
+        <button onClick={onClose} className="text-gray-500">✕</button>
       </div>
 
-      {isGroup && (
-        <input
-          placeholder="Tên nhóm"
-          value={groupName}
-          onChange={(e) => setGroupName(e.target.value)}
-          className="w-full border rounded px-3 py-2"
-        />
-      )}
+      <input
+        placeholder="Tên nhóm (tùy chọn)"
+        value={groupName}
+        onChange={(e) => setGroupName(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+      />
 
       <div>
-        <label className="font-semibold">Chọn người:</label>
+        <label className="font-semibold">Chọn thành viên:</label>
         <div className="max-h-40 overflow-y-auto border rounded p-2 mt-1 space-y-1">
           {users.map((u) => (
             <label key={u.id} className="flex items-center gap-2 cursor-pointer">
               <input
-                type={isGroup ? 'checkbox' : 'radio'}
+                type="checkbox"
                 checked={selectedIds.includes(u.id)}
                 onChange={() => toggleSelect(u.id)}
               />
@@ -135,15 +103,13 @@ export default function CreateRoom() {
         </div>
       </div>
 
-      {error && (
-        <p className="text-red-500 text-sm text-center">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
       <button
-        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
         onClick={createRoom}
       >
-        Tạo phòng
+        Tạo nhóm
       </button>
     </div>
   );
