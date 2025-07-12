@@ -1,13 +1,13 @@
-'use client' 
-import { SWRConfig } from 'swr';
-import { axiosInstance } from '@/api';
-
+"use client";
+import { SWRConfig } from "swr";
+import { axiosInstance } from "@/api";
 
 export function SWRProvider({ children }: { children: React.ReactNode }) {
   return (
     <SWRConfig
       value={{
         fetcher: (url) => axiosInstance.get(url).then((res) => res.data),
+        revalidateIfStale: false,
         revalidateOnFocus: false,
         shouldRetryOnError: false,
       }}

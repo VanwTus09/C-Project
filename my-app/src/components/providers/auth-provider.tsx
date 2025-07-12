@@ -10,7 +10,7 @@ type SupabaseContextType = {
 export const SupabaseContext = createContext<SupabaseContextType | null>(null);
 
 // 2. AuthProvider component
-export function AuthProvider({ children }: { children: ReactNode }) {
+export  function AuthProvider({ children }: { children: ReactNode }) {
   const [supabase] = useState(() =>
     createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

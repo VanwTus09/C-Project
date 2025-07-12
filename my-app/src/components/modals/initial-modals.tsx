@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-// import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import {
   FormControl,
@@ -25,9 +24,10 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileUpload } from "../ui/file-upload";
-import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { uploadImageToSupabase } from "@/lib/bucket_supabase";
+
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Server name is required",
@@ -41,36 +41,8 @@ const formSchema = z.object({
 });
 
 export const InitialModals = () => {
-  const { upload } = useCloudinaryUpload();
   const router = useRouter();
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return;
 
-    let finalImageUrl = "";
-    const uploaded = await upload(values.image);
-    if (uploaded) {
-      finalImageUrl = uploaded;
-    } else {
-      console.error("Upload thất bại");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        name: values.name,
-        avatar_url: finalImageUrl,
-      })
-      .eq("id", user.id);
-
-    if (!error) {
-      router.push("/");
-    }
-  };
-
-  const [, setIsMounted] = useState(false);
-  // const router = useRouter();
   const Customform = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -78,9 +50,49 @@ export const InitialModals = () => {
       image: "",
     },
   });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const uploadedUrl = await uploadImageToSupabase(
+      values.image as File,
+      user.id
+    );
+
+    // 1. Cập nhật tên user trong bảng profiles
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        server_name: values.name,
+      })
+      .eq("id", user.id);
+
+    if (updateError) {
+      console.error("Lỗi cập nhật profile:", updateError.message);
+      return;
+    }
+
+    // 2. Tạo server với ảnh vừa upload
+    const { error: insertServerError } = await supabase.from("servers").insert({
+      name: `${values.name}'s Server`,
+      image_url: uploadedUrl,
+      owner_id: user.id,
+    });
+
+    if (insertServerError) {
+      console.error("Lỗi tạo server:", insertServerError.message);
+      return;
+    }
+
+    router.push("/Home");
+  };
+
+  const [, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   return (
     <Dialog open>
       <DialogContent className="sm:max-w-[425px]">
@@ -101,12 +113,12 @@ export const InitialModals = () => {
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Upload image here</FormLabel>
+                  <FormLabel>Upload server image</FormLabel>
                   <FormControl>
                     <FileUpload value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormDescription>
-                    This is your public display name.
+                    This is the image for your personal server.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -117,12 +129,12 @@ export const InitialModals = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Your name</FormLabel>
                   <FormControl>
-                    <Input placeholder="@abc" {...field} />
+                    <Input placeholder="@yourname" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is your public display name.
+                    This is your public profile name.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

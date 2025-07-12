@@ -34,7 +34,6 @@ export default function RootLayout({
           >
             <AuthProvider>
                 <QueryProvider>{children}</QueryProvider>
-              
             </AuthProvider>
             
           </ThemeProvider>
