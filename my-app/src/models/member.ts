@@ -1,5 +1,4 @@
-import { ApiResponse, } from "@/models";
-import { Profile } from "./profile";
+import { ApiResponse , Profile } from "@/models";
 
 export const Role = {
   ADMIN: "ADMIN",
