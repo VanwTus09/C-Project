@@ -1,119 +1,51 @@
 "use client";
-import { useSupabase } from "@/hooks";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import CreateButton from "../Create-button";
-import { CreateServer } from "../modals";
+
+import { AvatarOptions } from "@/components/avatar-options";
 import { ModeToggle } from "./Mode-toggle";
-export default function Navigation() {
-  const { getCurrentUser } = useSupabase();
+import { NavigationAction, NavigationItem } from "@/components/Navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { useAuth, useServers } from "@/hooks";
+import { Server } from "@/models";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export const Navigation = () => {
   const router = useRouter();
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [show, setShow] = useState(false);
-  const [createServer, setCreateServer] = useState(false);
-  const Avatarref = useRef<HTMLDivElement>(null);
-  const Popupref = useRef<HTMLDivElement>(null);
-  const handleClickAvatar = () => {
-    setShow(!show);
-  };
-  const handleLogout = () => {
-    setShow(false);
-    router.push("/");
-  };
-  const handlecreate = () => {
-    setCreateServer(!createServer);
-  };
+  const { profile, isLoading: profileLoading } = useAuth();
+  const { servers, isLoading: serversLoading } = useServers();
+
   useEffect(() => {
-    const userLoad = async () => {
-      const data = await getCurrentUser();
-      setAvatar(data?.avatar_url);
-    };
-    userLoad();
-  }, [getCurrentUser]);
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        (Popupref.current &&
-          !Popupref.current.contains(event.target as Node)) ||
-        (Avatarref.current && !Avatarref.current.contains(event.target as Node))
-      ) {
-        setShow(false);
-        setCreateServer(false);
-      }
+    if (profileLoading || serversLoading) return;
+    if (!profile) {
+      router.replace("/");
     }
+  }, [profileLoading, serversLoading, profile, router]);
 
-    if (show || createServer) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+  if (profileLoading || serversLoading)
+    return <Loader2 className="animate-spin" />;
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [show, createServer]);
-
-  if (!avatar) return <div>Đang tải ...</div>;
   return (
-    <div className="h-screen w-[100px] flex flex-col border-r-2 ">
-      <div className="flex items-center justify-center p-4 border-b-2">
-        <CreateButton onClick={handlecreate} className="rounded-full " />
-      </div>
-      <div className="image-server items-center justify-center flex-1">
-        <Image
-          src={"/Logoapp.webp"}
-          alt="Logo"
-          width={80}
-          height={70}
-          className="rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
-        />
-        <div className="p-2 "> </div>
-      </div>
-      <div className="flex flex-col justify-center items-center border-t-2 p-2">
-        <button
-          className="image-account items-center justify-center "
-          onClick={handleClickAvatar}
-        >
-          <Image
-            src={avatar}
-            alt="Logo-account"
-            width={60}
-            height={50}
-            className="rounded-full"
-          />
-        </button>
-        <div className=" mt-2">
-          <ModeToggle />
-        </div>
-        <div></div>
-        {show && (
-          <div
-            ref={Avatarref}
-            className={`absolute left-16 bg-gray-500 border z-50 p-2 rounded text-lg transition-all duration-200 transform ${
-              show
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
-            }`}
-          >
-            <button onClick={handleLogout} className="hover:opacity-80">
-              Sign out
-            </button>
+    <div className="text-primary flex h-full w-full flex-col items-center space-y-4 bg-[#E3E5E8] py-3 dark:bg-[#1E1F22]">
+      <NavigationAction />
+      <Separator className="mx-auto h-[2px] w-10 rounded-md bg-zinc-300 dark:bg-zinc-700" />
+      <ScrollArea className="scrollbar-none w-full flex-1 overflow-y-auto">
+        {servers?.map((server: Server) => (
+          <div key={server.id} className="mb-4">
+            <NavigationItem
+              id={server.id}
+              name={server.name}
+              imageUrl={server.imageUrl}
+              priorityImageUrl={servers[0].imageUrl}
+            />
           </div>
-        )}
+        ))}
+      </ScrollArea>
+      <div className="mt-auto flex flex-col items-center gap-y-4 pb-3">
+        <AvatarOptions profile={profile} />
+        <ModeToggle />
       </div>
-      {createServer && (
-        <div
-          ref={Popupref}
-          className={`absolute left-16 bg-gray-500 border z-50 p-2 rounded text-lg transition-all duration-200 transform ${
-            show
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-95 pointer-events-none"
-          }`}
-        >
-          <CreateServer />
-        </div>
-      )}
     </div>
   );
-}
+};

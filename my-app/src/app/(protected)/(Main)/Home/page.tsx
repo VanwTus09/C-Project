@@ -1,11 +1,20 @@
 "use client";
-import Chats from "@/components/chats/chat";
-import Navigation from "@/components/Navigation/Navigation";
-import AppSidebar from "@/components/Sidebar/AppSidebar";
+import { ChatMessages } from "@/components/chats";
+import { Navigation } from "@/components/Navigation";
+import { ServerSidebar } from "@/components/Sidebar";
+import { useChannelByChannelId } from "@/hooks/use-channel-by-channelid";
 import { useState } from "react";
 
 const Home = () => {
-  const [showSidebar, setShowSidebar] = useState(false);
+  // Giả sử serverId là "1", sau này bạn nên lấy động từ user context
+const serverId = "1";
+
+const { channel, isLoading } = useChannelByChannelId(serverId);
+
+const [showSidebar, setShowSidebar] = useState(false);
+
+if (isLoading || !channel) return <div>Loading...</div>;
+
   return (
     <>
       <div className="flex">
@@ -14,7 +23,7 @@ const Home = () => {
             <Navigation />
           </div>
           <div className="hidden md:flex w-[300px]">
-            <AppSidebar />
+            <ServerSidebar serverId="" />
           </div>
         </div>
         {/* Sidebar mobile (overlay) */}
@@ -28,7 +37,7 @@ const Home = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <Navigation />
-              <AppSidebar />
+              <ServerSidebar serverId="1" />
             </div>
           </div>
         )}
@@ -41,7 +50,18 @@ const Home = () => {
             ☰
           </button>
           <div>
-            <Chats />
+            <ChatMessages
+    type="channel"
+    chatId={channel.id}
+    name={channel.name}
+    member={undefined} // nếu bạn có current member thì truyền vào
+    apiUrl="/api/messages"
+    paramKey="channels"
+    paramValue={channel.id}
+    socketUrl="/realtime"
+    socketQuery={{ channelId: channel.id, serverId }}
+    socketBody={{ channelId: channel.id, serverId }}
+  />
           </div>
         </div>
       </div>

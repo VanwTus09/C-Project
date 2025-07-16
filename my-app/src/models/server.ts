@@ -1,8 +1,18 @@
 import { ApiResponse } from "./api-res";
+import { Channel, MemberWithProfile } from "@/models";
 
-export interface server extends ApiResponse {
-  id: string;
-  name: string; // Name of the server
-  image_url: string; // URL of the server's image   
-  owner_id: string; // ID of the user who owns the server
-} // Unique identifier for the server
+export interface Server extends ApiResponse {
+  name: string;
+  imageUrl: string;
+  inviteCode: string;
+  profileId: string;
+}
+
+export interface ServerWithChannelWithMember extends Server {
+  channels: Channel[];
+  members: MemberWithProfile[];
+}
+
+export interface ServerWithChannel extends Server {
+  channels: Channel[];
+}

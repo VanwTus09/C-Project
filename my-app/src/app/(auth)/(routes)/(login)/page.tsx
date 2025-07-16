@@ -23,7 +23,7 @@ export default function LoginPage() {
         backgroundImage: "url('/login.jpg')",
       }}
     >
-      <div className="bg-white bg-opacity-90 p-8 rounded-xl shadow-xl text-center w-full max-w-md">
+      <div className="bg-opacity-90 p-8 rounded-xl shadow-xl text-center w-full max-w-md bg-zinc-500">
         <h2 className="text-2xl font-bold mb-6">Đăng nhập bằng Google</h2>
         <Button
           onClick={handleLoginWithGoogle}
