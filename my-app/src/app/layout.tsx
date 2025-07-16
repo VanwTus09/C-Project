@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import {  Open_Sans } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import "./globals.css";
-import { AuthProvider, QueryProvider, SWRProvider, ThemeProvider } from "@/components/providers";
+import {
+  AuthProvider,
+  QueryProvider,
+  SWRProvider,
+  ThemeProvider,
+} from "@/components/providers";
 import { cn } from "@/lib/utils";
+
 
 const font = Open_Sans({
   variable: "--font-geist-sans",
@@ -21,23 +27,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body  className={cn(
+      <body
+        className={cn(
           `${font.variable} antialiased`,
-          "bg-white dark:bg-[#313338]",
-        )}>
+          "bg-white dark:bg-[#313338]"
+        )}
+      >
+        
           <SWRProvider>
-           <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <AuthProvider>
-                <QueryProvider>{children}</QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <AuthProvider>
+              <QueryProvider>  
+                    {children}
+              </QueryProvider>
             </AuthProvider>
-            
-          </ThemeProvider>
+            </ThemeProvider>
           </SWRProvider>
+        
       </body>
     </html>
   );
