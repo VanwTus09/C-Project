@@ -7,7 +7,6 @@ import type { MessageWithMemberWithProfile } from "@/models";
 interface ChatSocketProps {
   queryKey: string;
   channelId: string;
-  
 }
 
 interface MessagePage {
@@ -25,74 +24,66 @@ export const useChatRealtime = ({ queryKey, channelId }: ChatSocketProps) => {
   useEffect(() => {
     if (!supabase || !channelId) return;
 
-    const channel: RealtimeChannel = supabase.channel(`room:${channelId}`);
+    const channelName = `room:${channelId}`;
+    const channel: RealtimeChannel = supabase
+      .channel(channelName)
+      .on<MessageWithMemberWithProfile>(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `channel_id=eq.${channelId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new;
 
-    // Handle INSERT
-    channel.on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `channel_id=eq.${channelId}`,
-      },
-      (payload) => {
-        const newMessage = payload.new as MessageWithMemberWithProfile;
+          queryClient.setQueryData<InfiniteMessages>([queryKey], (oldData) => {
+            if (!oldData || oldData.pages.length === 0) {
+              return {
+                pages: [{ items: [newMessage] }],
+              };
+            }
 
-        queryClient.setQueryData<InfiniteMessages>([queryKey], (oldData) => {
-          if (!oldData || oldData.pages.length === 0) {
+            const [firstPage, ...rest] = oldData.pages;
+
             return {
               pages: [
                 {
-                  items: [newMessage],
+                  ...firstPage,
+                  items: [newMessage, ...firstPage.items],
                 },
+                ...rest,
               ],
             };
-          }
+          });
+        }
+      )
+      .on<MessageWithMemberWithProfile>(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `channel_id=eq.${channelId}`,
+        },
+        (payload) => {
+          const updatedMessage = payload.new;
 
-          const newPages = [...oldData.pages];
-          newPages[0] = {
-            ...newPages[0],
-            items: [newMessage, ...newPages[0].items],
-          };
+          queryClient.setQueryData<InfiniteMessages>([queryKey], (oldData) => {
+            if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            pages: newPages,
-          };
-        });
-      }
-    );
-
-    // Handle UPDATE
-    channel.on(
-      "postgres_changes",
-      {
-        event: "UPDATE",
-        schema: "public",
-        table: "messages",
-        filter: `channel_id=eq.${channelId}`,
-      },
-      (payload) => {
-        const updatedMessage = payload.new as MessageWithMemberWithProfile;
-
-        queryClient.setQueryData<InfiniteMessages>([queryKey], (oldData) => {
-          if (!oldData || oldData.pages.length === 0) return oldData;
-
-          const updatedPages = oldData.pages.map((page) => ({
-            ...page,
-            items: page.items.map((msg) =>
-              msg.id === updatedMessage.id ? updatedMessage : msg
-            ),
-          }));
-
-          return {
-            ...oldData,
-            pages: updatedPages,
-          };
-        });
-      }
-    );
+            return {
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((msg) =>
+                  msg.id === updatedMessage.id ? updatedMessage : msg
+                ),
+              })),
+            };
+          });
+        }
+      );
 
     channel.subscribe();
 

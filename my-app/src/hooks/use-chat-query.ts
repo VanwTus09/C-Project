@@ -1,8 +1,9 @@
 'use client';
 import { axiosInstance } from "@/api/axiosIntance";
 import { useRealtimeMessages } from "./useRealtime-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase/supabase";
 interface ChatQueryProps {
   queryKey: string;
   apiUrl: string;
@@ -12,18 +13,25 @@ interface ChatQueryProps {
 export const useChatQuery = ({
   queryKey,
   apiUrl,
-  paramKey,
   paramValue,
 }: ChatQueryProps) => {
   const { newMessage } = useRealtimeMessages(paramValue);
-
+  const lastMessageIdRef = useRef<string | null>(null);
   const fetchMessages = async ({ pageParam = undefined }) => {
+    const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const token = session?.access_token;
     const response = await axiosInstance.get(
-      `${apiUrl}/${paramKey}/${paramValue}`,
+      `${apiUrl}/${paramValue}`,
       {
         params: {
           cursor: pageParam,
         },
+         headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      },
       }
     );
     return response.data;
@@ -45,9 +53,10 @@ export const useChatQuery = ({
 
   // Khi có message mới thì refetch lại
   useEffect(() => {
-    if (newMessage) {
-      refetch(); // hoặc push newMessage vào cache nếu muốn tối ưu
-    }
+    if (newMessage && newMessage.id !== lastMessageIdRef.current) {
+    lastMessageIdRef.current = newMessage.id;
+    refetch();
+  }
   }, [newMessage, refetch]);
 
   return {

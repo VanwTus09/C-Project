@@ -58,13 +58,13 @@ export const MessageFileModal = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!body) return;
 
-    if (apiUrl === `/api/socket/messages`) {
+    if (apiUrl === `/rest/v1/messages`) {
       await createMessage({
         image: values.image,
         channelId: body.channelId,
         serverId: body.serverId,
       });
-    } else if (apiUrl === `/api/socket/direct-messages`) {
+    } else if (apiUrl === `/rest/v1/direct-messages`) {
       await createDirectMessage({
         image: values.image,
         conversationId: body.conversationId,

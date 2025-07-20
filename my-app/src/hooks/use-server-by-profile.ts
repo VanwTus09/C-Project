@@ -12,7 +12,7 @@ export const useServerByProfileId = (
     data: server,
     error,
     isLoading,
-  } = useSWR<Server>(`/api/servers/profile/${profileId}`, {
+  } = useSWR<Server>(`/rest/v1/servers/${profileId}`, {
     ...options,
   });
 

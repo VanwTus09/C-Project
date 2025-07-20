@@ -5,25 +5,25 @@ import { axiosInstance } from "@/api/axiosIntance";
 export const useMessage = () => {
   const createMessage = async ({
     content,
-    image,
+    fileUrl,
     channelId,
-    serverId,
+    memberId,
   }: {
     content?: string;
-    image?: File | "";
+    fileUrl?: string | "";
     channelId?: string;
-    serverId?: string;
+    memberId?: string;
   }) => {
     try {
-      if (!channelId || !serverId) return;
+      if (!channelId || !memberId) return;
 
       const formData = new FormData();
       formData.append("content", content || "");
-      formData.append("channelId", channelId);
-      formData.append("serverId", serverId);
-      formData.append("image", image || "");
+      formData.append("channel_id", channelId);
+      formData.append("server_id", memberId);
+      formData.append("image", fileUrl || "");
 
-      await axiosInstance.post("/api/socket/messages", formData);
+      await axiosInstance.post("/rest/v1/messages", formData);
     } catch (error) {
       console.log(error);
     }
@@ -33,19 +33,19 @@ export const useMessage = () => {
     messageId,
     content,
     channelId,
-    serverId,
+    memberId,
   }: {
     messageId: string;
     content: string;
     channelId?: string;
-    serverId?: string;
+    memberId?: string;
   }) => {
-    if (content === "" || !channelId || !serverId) return;
+    if (content === "" || !channelId || !memberId) return;
     try {
-      await axiosInstance.patch(`/api/socket/messages/${messageId}`, {
+      await axiosInstance.patch(`/api/messages/${messageId}`, {
         content,
         channelId,
-        serverId,
+        memberId,
       });
     } catch (error) {
       console.log(error);
@@ -55,19 +55,19 @@ export const useMessage = () => {
   const deleteMessage = async ({
     apiUrl,
     channelId,
-    serverId,
+    memberId,
   }: {
     apiUrl: string;
     channelId?: string;
-    serverId?: string;
+    memberId?: string;
   }) => {
-    if (!channelId || !serverId) return;
+    if (!channelId || !memberId) return;
 
     try {
       await axiosInstance.delete(`${apiUrl}`, {
         params: {
           channelId,
-          serverId,
+          memberId,
         },
       });
     } catch (error) {

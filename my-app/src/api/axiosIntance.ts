@@ -1,32 +1,26 @@
 import axios from "axios";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  withCredentials: true,
+  baseURL: `${process.env.NEXT_PUBLIC_SUPABASE_URL}`,
 });
-// Add a request interceptor
+
 axiosInstance.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
+  async function (config) {
+    const supabase = createClientComponentClient();
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`;
+      config.headers.apikey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    }
+
     return config;
   },
   function (error) {
-    // Do something with request error
     return Promise.reject(error);
   },
 );
-
-// Add a response interceptor
-axiosInstance.interceptors.response.use(
-  function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-  },
-  function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    return Promise.reject(error);
-  },
-);
-

@@ -1,15 +1,30 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react"
-import { InitialModals } from "../modals"
+import {
+  CreateServerModal,
+  DeleteChannelModal,
+  DeleteMessageModal,
+  MembersModal,
+  MessageFileModal,
+} from "@/components/modals";
+import { useEffect, useState } from "react";
 
-export function ModalProvider(){
-    const [isMounted , setIsMounted] = useState(false)
-    useEffect(() =>{
-        setIsMounted(true)
-    },[])
-    if (!isMounted) return null;
-    return(
-        <InitialModals/>
-    )
-}
+export const ModalProvider = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
+  return (
+    <>
+      <CreateServerModal />
+      <MembersModal />
+      <DeleteChannelModal />
+      <MessageFileModal />
+      <DeleteMessageModal />
+    </>
+  );
+};

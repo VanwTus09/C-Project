@@ -35,20 +35,21 @@ export const NavigationItem = ({
           className={cn(
             "bg-primary absolute left-0 w-[4px] rounded-r-full transition-all",
             params?.serverId !== id && "group-hover:h-[20px]",
-            params?.serverId === id ? "h-[36px]" : "h-[8px]",
+            params?.serverId === id ? "h-[36px]" : "h-[8px]"
           )}
         />
         <div
           className={cn(
-            "group group:hover:rounded-[16px] relative mx-3 flex h-[48px] w-[48px] overflow-hidden rounded-[24px] transition-all",
+            "group  relative mx-3 flex h-[48px] w-[48px] overflow-hidden rounded-[24px] transition-all",
             params?.serverId === id &&
-              "bg-primary/10 text-primary rounded-[16px]",
+              "bg-primary/10 text-primary rounded-[16px]"
           )}
         >
           <Image
             fill
-            priority={priorityImageUrl === imageUrl}
-            src={imageUrl}
+            priority={!!priorityImageUrl && priorityImageUrl === imageUrl}
+            sizes="48px"
+            src={imageUrl || "/default-avatar.jpg"}
             alt="Channel"
           />
         </div>

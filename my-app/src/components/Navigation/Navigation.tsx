@@ -43,7 +43,7 @@ export const Navigation = () => {
         ))}
       </ScrollArea>
       <div className="mt-auto flex flex-col items-center gap-y-4 pb-3">
-        <AvatarOptions profile={profile} />
+        <AvatarOptions />
         <ModeToggle />
       </div>
     </div>

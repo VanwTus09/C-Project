@@ -1,6 +1,5 @@
-"use client";
-
-import { supabase } from "@/lib/supabase";
+'use client';
+import { supabase } from "@/lib/supabase/supabase";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 

@@ -9,9 +9,9 @@ import {
 } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
-
+// ✅ Đặt tên biến đúng với font đang dùng
 const font = Open_Sans({
-  variable: "--font-geist-sans",
+  variable: "--font-open-sans",
   subsets: ["latin"],
 });
 
@@ -29,26 +29,22 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          `${font.variable} antialiased`,
-          "bg-white dark:bg-[#313338]"
+          font.variable,
+          "antialiased bg-white dark:bg-[#313338]"
         )}
       >
-        
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <SWRProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <AuthProvider>
-              <QueryProvider>  
-                    {children}
-              </QueryProvider>
-            </AuthProvider>
-            </ThemeProvider>
+            <QueryProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryProvider>
           </SWRProvider>
-        
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -38,7 +38,7 @@ export const InviteModal = () => {
       if (!server) return;
       setIsLoading(true);
       const response = await axiosInstance.patch(
-        `/api/servers/${server.id}/invite-code`,
+        `/rest/v1/servers/${server.id}/invite-code`,
       );
 
       onOpen("invite", { server: response.data });

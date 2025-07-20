@@ -13,7 +13,7 @@ export const useServerByServerId = (
     error,
     isLoading,
     mutate,
-  } = useSWR<ServerWithChannelWithMember>(`/api/servers/${serverId}`, {
+  } = useSWR<ServerWithChannelWithMember>(`/rest/v1/servers/${serverId}`, {
     ...options,
   });
 

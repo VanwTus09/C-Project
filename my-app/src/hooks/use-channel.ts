@@ -11,7 +11,7 @@ export const useChannel = (serverId: string) => {
     serverId: string,
     values: { name: string; type: string },
   ) => {
-    await axiosInstance.post(`/api/servers/${serverId}/channels`, values);
+    await axiosInstance.post(`/rest/v1/servers/${serverId}/channels`, values);
 
     await mutate();
   };
@@ -22,7 +22,7 @@ export const useChannel = (serverId: string) => {
     values: { name: string; type: string },
   ) => {
     await axiosInstance.patch(
-      `/api/servers/${server.id}/channels/${channel.id}`,
+      `/rest/v1/servers/${server.id}/channels/${channel.id}`,
       values,
     );
 
@@ -31,7 +31,7 @@ export const useChannel = (serverId: string) => {
 
   const deleteChannel = async (server: Server, channel: Channel) => {
     await axiosInstance.delete(
-      `/api/servers/${server.id}/channels/${channel.id}`,
+      `/rest/v1/servers/${server.id}/channels/${channel.id}`,
     );
 
     await mutate();

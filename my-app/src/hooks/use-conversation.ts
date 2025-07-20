@@ -17,7 +17,7 @@ export const useConversation = (
     mutate,
   } = useSWR<Conversation>(
     shouldFetch
-      ? `/api/conversations/member-one/${memberOneId}/member-two/${memberTwoId}`
+      ? `/rest/v1/conversations/${memberOneId}/${memberTwoId}`
       : null,
     {
       ...options,

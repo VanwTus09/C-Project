@@ -1,26 +1,31 @@
 "use client";
-
-import { Channel } from "@/models";
+import { supabase } from "@/lib/supabase/supabase";
 import useSWR from "swr";
-import { SWRConfiguration } from "swr/_internal";
 
 export const useChannelByChannelId = (
-  channelId: string,
-  options?: Partial<SWRConfiguration<Channel>>,
+  channelId?: string,
+  serverId?: string
 ) => {
-  const {
-    data: channel,
-    error,
-    isLoading,
-    mutate,
-  } = useSWR<Channel>(`/api/channels/${channelId}`, {
-    ...options,
-  });
+  const shouldFetch = !!channelId && !!serverId;
+
+  const { data, error, isLoading } = useSWR(
+    shouldFetch ? [`channel-${channelId}`, channelId, serverId] : null,
+    async ([, channelId, serverId]) => {
+      const { data, error } = await supabase
+        .from("channels")
+        .select("*")
+        .eq("id", channelId)
+        .eq("server_id", serverId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  );
 
   return {
-    channel,
-    error,
+    channel: data,
     isLoading,
-    mutate,
+    error,
   };
 };

@@ -11,7 +11,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
     error,
     isLoading,
     mutate,
-  } = useSWR<Server[]>(`/api/servers`, {
+  } = useSWR<Server[]>(`/rest/v1/servers`, {
     ...options,
   });
 
@@ -27,7 +27,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       formData.append("name", name);
       formData.append("image", image || "");
 
-      await axiosInstance.post("/api/servers", formData);
+      await axiosInstance.post("/rest/v1/servers", formData);
 
       await mutate();
     } catch (error) {
@@ -44,7 +44,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
   }): Promise<Server | undefined> => {
     try {
       const response = await axiosInstance.post(
-        `/api/servers/${inviteCode}/member`,
+        `/rest/v1/servers/${inviteCode}/member`,
         {
           profileId,
         },
@@ -73,7 +73,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       formData.append("name", name);
       if (image) formData.append("image", image);
 
-      await axiosInstance.patch(`/api/servers/${serverId}`, formData);
+      await axiosInstance.patch(`/rest/v1/servers/${serverId}`, formData);
 
       await mutate();
     } catch (error) {

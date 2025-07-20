@@ -9,7 +9,7 @@ export const useAuth = (options?: Partial<SWRConfiguration<Profile>>) => {
     data: profile,
     error,
     isLoading,
-  } = useSWR<Profile>(`/api/auth/profile`, {
+  } = useSWR<Profile>(`/rest/v1/profiles`, {
     ...options,
   });
 

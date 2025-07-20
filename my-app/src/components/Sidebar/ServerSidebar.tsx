@@ -38,28 +38,28 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
 
   useEffect(() => {
     if (profileLoading || serverLoading) return;
-    if (!profile || !server) router.replace("/");
+    if (!profile) router.replace("/");
   }, [profile, router, server, profileLoading, serverLoading]);
 
   if (profileLoading || serverLoading) return null;
   if (!profile || !server) return null;
 
   const textChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.TEXT,
+    (channel: Channel) => channel.type === ChannelType.TEXT
   );
   const audioChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.AUDIO,
+    (channel: Channel) => channel.type === ChannelType.AUDIO
   );
   const videoChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.VIDEO,
+    (channel: Channel) => channel.type === ChannelType.VIDEO
   );
 
   const members = server?.members.filter(
-    (member: Member) => member.profileId !== profile?.id,
+    (member: Member) => member.profileId !== profile?.id
   );
 
   const role = server?.members.find(
-    (member: Member) => member.profileId === profile?.id,
+    (member: Member) => member.profileId === profile?.id
   )?.role;
 
   return (
@@ -81,7 +81,9 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
                 data: textChannels.map((channel) => ({
                   id: channel.id,
                   name: channel.name,
-                  icon: iconMap[channel.type],
+                  icon: iconMap[channel.type] ?? (
+                    <Hash className="mr-2 h-4 w-4" />
+                  ),
                 })),
               },
               {

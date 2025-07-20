@@ -5,22 +5,25 @@ import { axiosInstance } from "@/api/axiosIntance";
 export const useDirectMessage = () => {
   const createDirectMessage = async ({
     content,
-    image,
+    fileUrl,
     conversationId,
+    memberId,
   }: {
     content?: string;
-    image?: File | "";
+    fileUrl?: string | "";
     conversationId?: string;
+    memberId?: string;
   }) => {
     try {
       if (!conversationId) return;
 
       const formData = new FormData();
       formData.append("content", content || "");
-      formData.append("conversationId", conversationId);
-      formData.append("image", image || "");
+      formData.append("conversation_id", conversationId);
+      formData.append("file_url", fileUrl || "");
+      formData.append("member_id", memberId || "");
 
-      await axiosInstance.post("/api/socket/direct-messages", formData);
+      await axiosInstance.post("/rest/v1/direct-messages", formData);
     } catch (error) {
       console.log(error);
     }
@@ -30,18 +33,21 @@ export const useDirectMessage = () => {
     directMessageId,
     content,
     conversationId,
+    memberId,
   }: {
     directMessageId: string;
     content: string;
     conversationId?: string;
+    memberId?: string;
   }) => {
     if (content === "" || !conversationId) return;
     try {
       await axiosInstance.patch(
-        `/api/socket/direct-messages/${directMessageId}`,
+        `/rest/v1/direct-messages/${directMessageId}`,
         {
           content,
           conversationId,
+          memberId
         },
       );
     } catch (error) {

@@ -20,7 +20,7 @@ const InviteCodePage = () => {
 
   useEffect(() => {
     if (isLoading || existingServerLoading) return;
-    if (!profile) return router.replace("/login");
+    if (!profile) return router.replace("/");
     if (!params.inviteCode) return router.replace("/");
     if (existingServer) {
       return router.replace(`/servers/${existingServer.id}`);
