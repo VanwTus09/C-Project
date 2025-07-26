@@ -1,4 +1,3 @@
-'use client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,9 +6,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/user-avatar";
 import { supabase } from "@/lib/supabase/supabase";
-import { useEffect , useState} from "react";
+import { Profile } from "@/models";
 
-export const AvatarOptions = () => {
+export const AvatarOptions = ({profile}:{profile:Profile}) => {
+  const imageUrl = profile?.image_url;
   const onLogout = async () => {
   try {
     await supabase.auth.signOut();
@@ -18,36 +18,6 @@ export const AvatarOptions = () => {
     console.log(error);
   }
   }
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) return;
-
-      // Option 1: Lấy từ bảng profiles
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("image_url")
-        .eq("id", user.id)
-        .single();
-
-      if (profile?.image_url) {
-        setImageUrl(profile.image_url);
-      } else {
-        // Option 2: fallback từ Google metadata
-        setImageUrl(user.user_metadata.avatar_url);
-      }
-    };
-
-    fetchAvatar();
-  }, []);
-
-  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

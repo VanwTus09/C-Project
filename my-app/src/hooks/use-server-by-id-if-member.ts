@@ -1,35 +1,26 @@
 "use client";
 
-import useSWR, { SWRConfiguration } from "swr";
-import { Server, Member, Profile } from "@/models";
+import { MemberWithProfile } from "@/models";
+import useSWR from "swr";
+import { SWRConfiguration } from "swr/_internal";
 
-export interface MemberWithProfile extends Member {
-  profile: Profile;
-}
-
-interface ServerWithMember {
-  server: Server;
-  member: MemberWithProfile;
-}
-
-export const useServerByServerIdIfMember = (
+export const useFirstMemberByServerIdIfMember = (
   serverId: string,
-  options?: Partial<SWRConfiguration<ServerWithMember[]>>, // ✅ Đúng kiểu
+  options?: Partial<SWRConfiguration<MemberWithProfile>>,
 ) => {
-  const key = serverId
-    ? `/rest/v1/members?server_id=eq.${serverId}&select=*,profile:profiles(*),server:servers(*)`
-    : null;
-
-  const { data, error, isLoading } = useSWR<ServerWithMember[]>(key, {
-    ...options,
-  });
-
-  const member = data?.[0];
-
-  return {
-    server: member?.server || null,
-    member: member || null,
+  const {
+    data: member,
     error,
     isLoading,
+    mutate,
+  } = useSWR<MemberWithProfile>(`/rest/v1/members?server_id=eq.${serverId}&select=*`, {
+    ...options,
+    
+  });
+  return {
+    member,
+    error,
+    isLoading,
+    mutate,
   };
 };

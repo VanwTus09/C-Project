@@ -44,21 +44,21 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
   if (profileLoading || serverLoading) return null;
   if (!profile || !server) return null;
 
-  const textChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.TEXT
-  );
-  const audioChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.AUDIO
-  );
-  const videoChannels = server?.channels.filter(
-    (channel: Channel) => channel.type === ChannelType.VIDEO
-  );
+  const textChannels =
+    server?.channels ??
+    [].filter((channel: Channel) => channel.type === ChannelType.TEXT);
+  const audioChannels =
+    server?.channels ??
+    [].filter((channel: Channel) => channel.type === ChannelType.AUDIO);
+  const videoChannels =
+    server?.channels ??
+    [].filter((channel: Channel) => channel.type === ChannelType.VIDEO);
 
-  const members = server?.members.filter(
-    (member: Member) => member.profileId !== profile?.id
-  );
+  const members =
+    server?.members ??
+    [].filter((member: Member) => member.profileId !== profile?.id);
 
-  const role = server?.members.find(
+  const role = server?.members?.find(
     (member: Member) => member.profileId === profile?.id
   )?.role;
 

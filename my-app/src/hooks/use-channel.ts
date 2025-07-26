@@ -3,6 +3,7 @@
 import { axiosInstance } from "@/api/axiosIntance";
 import { Channel, Server } from "@/models";
 import { useServerByServerId } from "./use-server-by-id";
+import { supabase } from "@/lib/supabase/supabase";
 
 export const useChannel = (serverId: string) => {
   const { mutate } = useServerByServerId(serverId);
@@ -11,7 +12,9 @@ export const useChannel = (serverId: string) => {
     serverId: string,
     values: { name: string; type: string },
   ) => {
-    await axiosInstance.post(`/rest/v1/servers/${serverId}/channels`, values);
+    await supabase.from("channels")
+    .insert({...values,server_id : serverId})
+    .single();
 
     await mutate();
   };

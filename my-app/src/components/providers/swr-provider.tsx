@@ -1,34 +1,52 @@
-// app/_providers/swr-provider.tsx hoặc tương đương
+// _providers/swr-provider.tsx
 "use client";
+import { axiosInstance } from "@/api";
 import { supabase } from "@/lib/supabase/supabase";
+import { useEffect, useState } from "react";
 import { SWRConfig } from "swr";
 
 export function SWRProvider({ children }: { children: React.ReactNode }) {
-  const fetcher = async (url: string) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  const [token, setToken] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
-    const token = session?.access_token;
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}${url}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      },
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setToken(data.session?.access_token ?? null);
+      setIsReady(true);
     });
-    if (!res.ok) throw new Error("Request failed");
+  }, []);
 
-    const data = await res.json();
-    return data;
+  const fetcher = async (url: string) => {
+    if (!token) throw new Error("No token");
+
+    const res = await axiosInstance.get(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}${url}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        },
+      }
+    )
+    
+    return res.data[0];
   };
-
+  
+  if (!isReady) {
+    return (
+      <div className="flex h-screen items-center justify-center text-muted-foreground text-sm">
+        Đang tải...
+      </div>
+    );
+  }
   return (
     <SWRConfig
       value={{
         fetcher,
+
         revalidateIfStale: false,
         revalidateOnFocus: false,
+        revalidateOnReconnect: false,
         shouldRetryOnError: false,
       }}
     >

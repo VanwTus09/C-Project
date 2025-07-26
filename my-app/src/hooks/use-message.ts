@@ -1,51 +1,55 @@
 "use client";
 
 import { axiosInstance } from "@/api/axiosIntance";
+import { supabase } from "@/lib/supabase/supabase";
 
 export const useMessage = () => {
   const createMessage = async ({
-    content,
-    fileUrl,
-    channelId,
-    memberId,
-  }: {
-    content?: string;
-    fileUrl?: string | "";
-    channelId?: string;
-    memberId?: string;
-  }) => {
-    try {
-      if (!channelId || !memberId) return;
+  content,
+  fileUrl,
+  channelId,
+  memberId,
+}: {
+  content?: string;
+  fileUrl?: File | "";
+  channelId?: string;
+  memberId?: string;
+  serverId?: string,
+}) => {
+  try {
+    if (!channelId || !memberId) return;
 
-      const formData = new FormData();
-      formData.append("content", content || "");
-      formData.append("channel_id", channelId);
-      formData.append("server_id", memberId);
-      formData.append("image", fileUrl || "");
-
-      await axiosInstance.post("/rest/v1/messages", formData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+    const payload = {
+      content: content || "",
+      channel_id: channelId,
+      member_id: memberId,
+      file_url: fileUrl || "",
+    };
+     await supabase.from("messages").insert(payload).single();
+  } catch (error) {
+    console.log("Create error:", error);
+  }
+};
   const editMessage = async ({
     messageId,
     content,
     channelId,
     memberId,
+    serverId
   }: {
     messageId: string;
     content: string;
     channelId?: string;
     memberId?: string;
+    serverId?: string
   }) => {
     if (content === "" || !channelId || !memberId) return;
     try {
-      await axiosInstance.patch(`/api/messages/${messageId}`, {
+      await axiosInstance.patch(`/rest/v1/messages/${messageId}`, {
         content,
         channelId,
         memberId,
+        serverId
       });
     } catch (error) {
       console.log(error);

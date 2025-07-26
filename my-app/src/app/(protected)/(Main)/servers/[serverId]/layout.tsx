@@ -1,6 +1,6 @@
 "use client";
 import { ServerSidebar } from "@/components/Sidebar";
-import { useAuth, useServerByServerIdIfMember } from "@/hooks";
+import { useAuth , useServers } from "@/hooks";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,18 +12,17 @@ const ServerIdLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { serverId } = useParams<Params>();
   const { profile, isLoading: profileLoading } = useAuth();
-  const { server, isLoading: serverLoading } =
-    useServerByServerIdIfMember(serverId);
+  const { servers, isLoading: serverLoading } = useServers();
 
   useEffect(() => {
     if (profileLoading || serverLoading) return;
-  }, [profile, server, profileLoading, serverLoading, router]);
+  }, [profile, servers, profileLoading, serverLoading, router]);
 
-  if (profileLoading || serverLoading) return;
-
+  if (profileLoading || serverLoading)
+    return <div>...Loading chỗ layout serverId</div>;
   return (
     <div className="h-full">
-      <div className="fixed inset-y-0 z-20 hidden h-full w-60 flex-col md:flex">
+      <div className="fixed inset-y-0 z-20  h-full w-60 flex-col flex">
         <ServerSidebar serverId={serverId} />
       </div>
       <main className="h-full md:pl-60">{children}</main>

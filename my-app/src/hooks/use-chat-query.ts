@@ -1,40 +1,39 @@
-'use client';
-import { axiosInstance } from "@/api/axiosIntance";
-import { useRealtimeMessages } from "./useRealtime-query";
-import { useEffect, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/supabase";
+
 interface ChatQueryProps {
   queryKey: string;
-  apiUrl: string;
-  paramKey: "channels" | "conversations";
-  paramValue: string;
+  paramKey: "channel" | "conversation";
+  paramValue?: string;
 }
+
+const PAGE_SIZE = 20; // lấy 20 tin nhắn mỗi lần load
+
 export const useChatQuery = ({
   queryKey,
-  apiUrl,
+  paramKey,
   paramValue,
 }: ChatQueryProps) => {
-  const { newMessage } = useRealtimeMessages(paramValue);
-  const lastMessageIdRef = useRef<string | null>(null);
-  const fetchMessages = async ({ pageParam = undefined }) => {
-    const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const token = session?.access_token;
-    const response = await axiosInstance.get(
-      `${apiUrl}/${paramValue}`,
-      {
-        params: {
-          cursor: pageParam,
-        },
-         headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      },
-      }
-    );
-    return response.data;
+  
+
+  const fetchMessages = async ({ pageParam = 0 }) => {
+    const from = pageParam;
+    const to = pageParam + PAGE_SIZE - 1;
+
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*, member:member_id(*, profile:profile_id(*))")
+      .eq(`${paramKey}_id`, paramValue)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (error) throw new Error(error.message);
+
+    return {
+      messages: data ,
+      nextCursor: (data?.length === PAGE_SIZE) ? to + 1 : undefined,
+    };
+    
   };
 
   const {
@@ -43,21 +42,13 @@ export const useChatQuery = ({
     hasNextPage,
     isFetchingNextPage,
     status,
-    refetch,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery({ // fetch error
     queryKey: [queryKey],
     queryFn: fetchMessages,
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage?.nextCursor || undefined,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    
   });
-
-  // Khi có message mới thì refetch lại
-  useEffect(() => {
-    if (newMessage && newMessage.id !== lastMessageIdRef.current) {
-    lastMessageIdRef.current = newMessage.id;
-    refetch();
-  }
-  }, [newMessage, refetch]);
 
   return {
     data,

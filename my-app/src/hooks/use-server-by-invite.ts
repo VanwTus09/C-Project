@@ -12,7 +12,7 @@ export const useServerByInviteCodeIfMember = (
     data: server,
     error,
     isLoading,
-  } = useSWR<Server>(`/rest/v1/servers/invite-code/${inviteCode}/if-member`, {
+  } = useSWR<Server>(`/rest/v1/servers/invite-code/${inviteCode}`, {
     ...options,
   });
 

@@ -22,10 +22,9 @@ interface ChatItemProps {
   timestamp: string;
   fileUrl: string | null;
   deleted: boolean;
-  currentMember: MemberWithProfile | undefined;
+  currentMember?: MemberWithProfile;
   isUpdated: boolean;
   paramValue: string;
-  socketUrl: string;
   socketQuery: {
     channelId?: string;
     serverId?: string;
@@ -45,7 +44,7 @@ interface RoleIconMap {
 const roleIconMap: RoleIconMap = {
   GUEST: null,
   MODERATOR: <ShieldCheck className="ml-2 h-4 w-4 text-indigo-500" />,
-  ADMIN: <ShieldAlert className="ml-2 h-4 w-4 text-rose-500" />,
+  ADMIN: <ShieldAlert className="ml-2 h-4 w-5 text-rose-500" />,
 };
 
 const formSchema = z.object({
@@ -60,7 +59,6 @@ export const ChatItem = ({
   deleted,
   currentMember,
   isUpdated,
-  socketUrl,
   paramValue,
   socketQuery,
   socketBody,
@@ -75,13 +73,12 @@ export const ChatItem = ({
   const onMemberClick = () => {
     if (!currentMember) return;
     if (member.id === currentMember.id) return;
-
     router.push(`/servers/${params.serverId}/conversations/${member.id}`);
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" || event.keyCode === 27) setIsEditing(false);
+      if (event.key === "Escape") setIsEditing(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -97,19 +94,19 @@ export const ChatItem = ({
   });
 
   const isLoading = form.formState.isSubmitting;
-
+  const isDirectMessage = !!socketBody.conversationId;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (!content || content === "") return;
+      if (!values.content || values.content.trim() === "") return;
 
-      if (socketUrl === `/api/socket/messages`) {
+      if (!isDirectMessage) {
         await editMessage({
           messageId: paramValue,
           content: values.content,
           channelId: socketBody.channelId,
           serverId: socketBody.serverId,
         });
-      } else if (socketUrl === `/api/socket/direct-messages`) {
+      } else  {
         await editDirectMessage({
           directMessageId: paramValue,
           content: values.content,
@@ -144,7 +141,7 @@ export const ChatItem = ({
           className="cursor-pointer transition hover:drop-shadow-md"
           onClick={onMemberClick}
         >
-          <UserAvatar src={member.profile.imageUrl} />
+          <UserAvatar src={member.profile.image_url} />
         </div>
         <div className="flex w-full flex-col">
           <div className="flex items-center gap-x-2">
@@ -183,7 +180,7 @@ export const ChatItem = ({
               className={cn(
                 "text-sm text-zinc-600 dark:text-zinc-300",
                 deleted &&
-                  "mt-1 text-xs text-zinc-500 italic dark:text-zinc-400",
+                  "mt-1 text-xs text-zinc-500 italic dark:text-zinc-400"
               )}
             >
               {content}
@@ -243,7 +240,7 @@ export const ChatItem = ({
             <Trash
               onClick={() =>
                 onOpen("deleteMessage", {
-                  apiUrl: `${socketUrl}/${paramValue}`,
+                  apiUrl: `${isDirectMessage}/${paramValue}`,
                   query: socketQuery,
                 })
               }

@@ -6,11 +6,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { InitialModal } from '@/components/modals';
 import { useAuth } from '@/hooks';
 
-export default function ServersPage() {
+export default function AuthRequest() {
   const router = useRouter();
   const supabase = createClientComponentClient();
   const { profile } = useAuth();
-
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +19,6 @@ export default function ServersPage() {
         setLoading(false);
         return;
       }
-
       const { data: servers } = await supabase
         .from('servers')
         .select('id, channels(id)')

@@ -27,13 +27,13 @@ export const DeleteMessageModal = () => {
 
       if (!apiUrl || !query) return;
 
-      if (apiUrl.includes(`/api/socket/messages`)) {
+      if (apiUrl.includes(`/rest/v1/messages`)) {
         await deleteMessage({
           apiUrl,
           channelId: query.channelId,
-          serverId: query.serverId,
+          
         });
-      } else if (apiUrl.includes(`/api/socket/direct-messages`)) {
+      } else if (apiUrl.includes(`/rest/v1/direct_messages`)) {
         await deleteDirectMessage({
           apiUrl,
           conversationId: query.conversationId,

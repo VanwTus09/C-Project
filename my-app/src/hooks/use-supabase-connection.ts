@@ -13,8 +13,10 @@ export function useSupabaseConnection() {
           event: "INSERT",
           schema: "public",
           table: "messages", // có thể thay bằng bất kỳ bảng nào có bật Realtime
-        },
-        () => {
+        },(payload) => {
+          console.log("realtime status",payload)
+        
+        
           // Nếu nhận được sự kiện, tức là realtime đang hoạt động
           setIsConnected(true);
         }

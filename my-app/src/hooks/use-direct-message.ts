@@ -1,6 +1,7 @@
 "use client";
 
 import { axiosInstance } from "@/api/axiosIntance";
+import { supabase } from "@/lib/supabase/supabase";
 
 export const useDirectMessage = () => {
   const createDirectMessage = async ({
@@ -10,20 +11,20 @@ export const useDirectMessage = () => {
     memberId,
   }: {
     content?: string;
-    fileUrl?: string | "";
+    fileUrl?: File | "";
     conversationId?: string;
     memberId?: string;
   }) => {
     try {
       if (!conversationId) return;
 
-      const formData = new FormData();
-      formData.append("content", content || "");
-      formData.append("conversation_id", conversationId);
-      formData.append("file_url", fileUrl || "");
-      formData.append("member_id", memberId || "");
+      await supabase.from("direct_messages").insert({ 
+      content: content || "",
+      conversation_id: conversationId,
+      file_url: fileUrl || "",
+      member_id: memberId || "",
+    });
 
-      await axiosInstance.post("/rest/v1/direct-messages", formData);
     } catch (error) {
       console.log(error);
     }
@@ -43,7 +44,7 @@ export const useDirectMessage = () => {
     if (content === "" || !conversationId) return;
     try {
       await axiosInstance.patch(
-        `/rest/v1/direct-messages/${directMessageId}`,
+        `/rest/v1/direct_messages/${directMessageId}`,
         {
           content,
           conversationId,

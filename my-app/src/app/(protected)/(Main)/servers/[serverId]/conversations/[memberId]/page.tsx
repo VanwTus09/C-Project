@@ -2,11 +2,7 @@
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/chats";
 import { MediaRoom } from "@/components/media-room";
-import {
-  useAuth,
-  useConversation,
-  useServerByServerIdIfMember,
-} from "@/hooks";
+import { useAuth, useConversation, useFirstMemberByServerIdIfMember,  } from "@/hooks";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -17,10 +13,10 @@ const MemberIdPage = () => {
   const router = useRouter();
   const { profile, isLoading: profileLoading } = useAuth();
   const { member: currentMember, isLoading: memberLoading } =
-    useServerByServerIdIfMember(params.serverId);
+    useFirstMemberByServerIdIfMember(params.serverId);
   const { conversation, isLoading: conversationLoading } = useConversation(
-    currentMember?.member.id,
-    params.memberId,
+    currentMember?.id,
+    params.memberId
   );
 
   const otherMember =
@@ -65,11 +61,10 @@ const MemberIdPage = () => {
                     type="conversation"
                     chatId={conversation?.id}
                     name={otherMember.profile.name}
-                    member={currentMember?.member}
-                    apiUrl="/api/direct-messages"
-                    paramKey="conversations"
+                    member={currentMember}
+                    apiUrl="/rest/v1/direct_messages"
+                    paramKey="conversation"
                     paramValue={conversation.id}
-                    socketUrl="/api/socket/direct-messages"
                     socketQuery={{
                       conversationId: conversation.id,
                     }}
@@ -80,7 +75,7 @@ const MemberIdPage = () => {
                   <ChatInput
                     type="conversation"
                     name={otherMember.profile.name}
-                    apiUrl="/api/socket/direct-messages"
+                    apiUrl="/rest/v1/messages"
                     body={{
                       conversationId: conversation.id,
                     }}

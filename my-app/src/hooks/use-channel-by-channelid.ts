@@ -1,5 +1,3 @@
-"use client";
-import { supabase } from "@/lib/supabase/supabase";
 import useSWR from "swr";
 
 export const useChannelByChannelId = (
@@ -9,22 +7,11 @@ export const useChannelByChannelId = (
   const shouldFetch = !!channelId && !!serverId;
 
   const { data, error, isLoading } = useSWR(
-    shouldFetch ? [`channel-${channelId}`, channelId, serverId] : null,
-    async ([, channelId, serverId]) => {
-      const { data, error } = await supabase
-        .from("channels")
-        .select("*")
-        .eq("id", channelId)
-        .eq("server_id", serverId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
+    shouldFetch ? `/rest/v1/channels?id=eq.${channelId}&server_id=eq.${serverId}&select=*` : null,
   );
-
+  
   return {
-    channel: data,
+    channel:data,
     isLoading,
     error,
   };

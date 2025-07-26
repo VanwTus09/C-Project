@@ -64,14 +64,14 @@ export default function AuthCallbackPage() {
         }
 
         // Sau khi tạo profile, chuyển đến tạo server
-        router.replace("/servers");
+        router.replace("/request");
         return;
       }
 
       // Kiểm tra server đã tham gia
       const { data: servers, error: serverError } = await supabase
         .from("servers")
-        .select("id")
+        .select("id") 
         .eq("profile_id", user.id)
         .limit(1);
 

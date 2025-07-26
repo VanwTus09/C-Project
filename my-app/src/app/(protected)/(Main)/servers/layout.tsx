@@ -1,5 +1,5 @@
-import { Navigation } from "@/components/Navigation";
 
+import { Navigation } from "@/components/Navigation";
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-full">

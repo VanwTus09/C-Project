@@ -32,19 +32,19 @@ const formSchema = z.object({
   ]),
 });
 
-export const MessageFileModal = () => {
+export function MessageFileModal() {
   const router = useRouter();
   const { isOpen, onClose, type, data } = useModal();
   const { createMessage } = useMessage();
   const { createDirectMessage } = useDirectMessage();
 
   const isModalOpen = isOpen && type === "messageFile";
-  const { apiUrl, body } = data;
+  const { body } = data;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      image: "",
+      image: ""  ,
     },
   });
 
@@ -52,21 +52,22 @@ export const MessageFileModal = () => {
     form.reset();
     onClose();
   };
-
+  
   const isLoading = form.formState.isSubmitting;
-
+  const isDirectMessage = !!body?.conversationId
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    
     if (!body) return;
 
-    if (apiUrl === `/rest/v1/messages`) {
+    if (!isDirectMessage) {
       await createMessage({
-        image: values.image,
+        fileUrl: values.image,
         channelId: body.channelId,
         serverId: body.serverId,
       });
-    } else if (apiUrl === `/rest/v1/direct-messages`) {
+    } else{
       await createDirectMessage({
-        image: values.image,
+        fileUrl: values.image,
         conversationId: body.conversationId,
       });
     }

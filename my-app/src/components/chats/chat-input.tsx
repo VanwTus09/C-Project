@@ -14,7 +14,7 @@ interface ChatInputProps {
   type: "conversation" | "channel";
   name: string;
   apiUrl: string;
-  body: { channelId?: string; serverId?: string; conversationId?: string };
+  body: { channelId?: string;  conversationId?: string , memberId?: string , serverId?: string };
 }
 
 const formSchema = z.object({
@@ -26,7 +26,6 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
   const { onOpen } = useModal();
   const { createMessage } = useMessage();
   const { createDirectMessage } = useDirectMessage();
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,24 +34,29 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
   });
 
   const isLoading = form.formState.isSubmitting;
-
+  
+  
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
     try {
-      if (apiUrl === `/api/socket/messages`) {
+      if (apiUrl === `/rest/v1/messages`) {
         await createMessage({
           content: value.content,
           channelId: body.channelId,
-          serverId: body.serverId,
+          memberId: body.memberId,
+          
         });
-      } else if (apiUrl === `/api/socket/direct-messages`) {
+      } else if (apiUrl === `/rest/v1/direct_messages`) {
         await createDirectMessage({
           content: value.content,
-          conversationId: body.conversationId,
+          conversationId: body.conversationId, 
+          memberId: body.memberId,
         });
       }
 
       form.reset();
       router.refresh();
+      
+
     } catch (error) {
       console.log(error);
     }
@@ -71,9 +75,9 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
                   <button
                     type="button"
                     className="absolute top-7 left-8 flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded-full bg-zinc-500 p-1 transition hover:bg-zinc-600 dark:bg-zinc-400 dark:hover:bg-zinc-300"
-                    onClick={() => onOpen("messageFile", { apiUrl, body })}
+                    onClick={()=> onOpen("messageFile",{body,apiUrl, })}
                   >
-                    <Plus className="text-white dark:text-[#313338]" />
+                    <Plus className="text-white dark:text-[#313338] hover:scale-115" />
                   </button>
                   <Input
                     {...field}

@@ -1,7 +1,8 @@
 "use client";
 
 import { axiosInstance } from "@/api/axiosIntance";
-import { Server } from "@/models";
+import { supabase } from "@/lib/supabase/supabase";
+import { Server  } from "@/models";
 import useSWR from "swr";
 import { SWRConfiguration } from "swr/_internal";
 
@@ -27,7 +28,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       formData.append("name", name);
       formData.append("image", image || "");
 
-      await axiosInstance.post("/rest/v1/servers", formData);
+      await supabase.from("servers").insert(formData).single();
 
       await mutate();
     } catch (error) {
@@ -43,16 +44,32 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
     profileId: string;
   }): Promise<Server | undefined> => {
     try {
-      const response = await axiosInstance.post(
-        `/rest/v1/servers/${inviteCode}/member`,
-        {
-          profileId,
-        },
-      );
+      const { data: server, error: findError } = await supabase
+      .from("servers")
+      .select("*")
+      .eq("invite_code", inviteCode)
+      .single();
+
+    if (findError || !server) {
+      console.error("Không tìm thấy server từ inviteCode:", findError);
+      return;
+    
+    } const {  error: insertError } = await supabase
+      .from("members")
+      .insert({
+        profile_id: profileId,
+        server_id: server.id,
+      })
+      .select(); 
+
+    if (insertError) {
+      console.error("Lỗi khi thêm thành viên:", insertError);
+      return;
+    }
 
       await mutate();
 
-      return response.data;
+      return server;
     } catch (error) {
       console.log(error);
     }

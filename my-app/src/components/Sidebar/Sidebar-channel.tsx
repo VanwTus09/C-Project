@@ -38,7 +38,6 @@ export const SidebarChannel = ({
     e.stopPropagation();
     onOpen(action, { server, channel });
   };
-
   return (
     <button
       onClick={handleClick}

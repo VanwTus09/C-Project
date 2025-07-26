@@ -13,7 +13,7 @@ export const useServerWithGeneralChannelByServerId = (
     error,
     isLoading,
     mutate,
-  } = useSWR<ServerWithChannel>(`/rest/v1/servers/${serverId}/channels/general`, {
+  } = useSWR<ServerWithChannel>(`/rest/v1/channels?server_id=eq.${serverId}&name=eq.general&select=*`, {
     ...options,
   });
 

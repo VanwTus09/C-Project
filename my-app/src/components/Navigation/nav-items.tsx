@@ -45,13 +45,15 @@ export const NavigationItem = ({
               "bg-primary/10 text-primary rounded-[16px]"
           )}
         >
-          <Image
-            fill
-            priority={!!priorityImageUrl && priorityImageUrl === imageUrl}
-            sizes="48px"
-            src={imageUrl || "/default-avatar.jpg"}
-            alt="Channel"
-          />
+          {imageUrl ? (
+            <Image
+              fill
+              priority={!!priorityImageUrl && priorityImageUrl === imageUrl}
+              sizes="48px"
+              src={imageUrl}
+              alt="Channel"
+            />
+          ) : null}
         </div>
       </button>
     </ActionTooltip>

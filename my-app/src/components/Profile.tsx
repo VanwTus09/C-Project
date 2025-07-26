@@ -13,7 +13,7 @@ export default function Profile({ googleAvatarUrl }: ProfileProps) {
   useEffect(() => {
     const uploadAvatar = async () => {
       try {
-        const res = await axios.post('/api/upload-avatar', {
+        const res = await axios.post('/rest/v1/profiles', {
           imageUrl: googleAvatarUrl,
           folder: 'users',
         });
