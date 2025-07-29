@@ -23,15 +23,4 @@ A modern, full-stack Realtime Chat Application built using **Next.js 14 (App Rou
 - **Icons**: lucide-react
 - **Realtime Engine**: Supabase Channels (Postgres + WebSocket)
 
-## 📦 Project Structure (Simplified)
 
-├── app/ # Next.js App Router structure
-│ ├── layout.tsx
-│ ├── page.tsx
-│ └── servers/ # Chat server logic
-├── components/ # UI components (chat, sidebar, modal...)
-├── hooks/ # Custom hooks (useChatQuery, useRealtime, etc.)
-├── lib/ # Supabase config, utils
-├── models/ # TypeScript models
-├── stores/ # Zustand stores (e.g., useServerStore)
-└── ...
