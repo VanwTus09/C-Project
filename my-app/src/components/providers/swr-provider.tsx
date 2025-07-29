@@ -27,11 +27,10 @@ export function SWRProvider({ children }: { children: React.ReactNode }) {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         },
       }
-    )
-    
+    );
     return res.data[0];
   };
-  
+
   if (!isReady) {
     return (
       <div className="flex h-screen items-center justify-center text-muted-foreground text-sm">
@@ -43,7 +42,6 @@ export function SWRProvider({ children }: { children: React.ReactNode }) {
     <SWRConfig
       value={{
         fetcher,
-
         revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,

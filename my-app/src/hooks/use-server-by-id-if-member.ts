@@ -15,7 +15,6 @@ export const useFirstMemberByServerIdIfMember = (
     mutate,
   } = useSWR<MemberWithProfile>(`/rest/v1/members?server_id=eq.${serverId}&select=*`, {
     ...options,
-    
   });
   return {
     member,

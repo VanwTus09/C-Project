@@ -54,13 +54,27 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       console.error("Không tìm thấy server từ inviteCode:", findError);
       return;
     
-    } const {  error: insertError } = await supabase
+    } 
+     // Kiểm tra xem đã là thành viên chưa
+    const { data: existingMember } = await supabase
+      .from("members")
+      .select("*")
+      .eq("profile_id", profileId)
+      .eq("server_id", server.id)
+      .single();
+
+    if (existingMember) {
+      console.warn("Đã là thành viên server");
+      return server;
+    }
+    const {  error: insertError } = await supabase
       .from("members")
       .insert({
         profile_id: profileId,
         server_id: server.id,
+        role:"GUEST",
       })
-      .select(); 
+    
 
     if (insertError) {
       console.error("Lỗi khi thêm thành viên:", insertError);

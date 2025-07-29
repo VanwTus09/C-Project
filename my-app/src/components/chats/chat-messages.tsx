@@ -44,7 +44,6 @@ export const ChatMessages = ({
   const queryKey = `chat:${chatId}`;
   const chatRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  console.log("tú check lỗi ", paramKey, paramValue);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({
       queryKey,

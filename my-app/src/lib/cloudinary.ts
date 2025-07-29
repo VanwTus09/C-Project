@@ -9,7 +9,6 @@ export async function uploadToCloudinaryFromUrl(imageUrl: string): Promise<strin
     formData.append("upload_preset", UPLOAD_PRESET);
 
   try {
-  
     // Bước 2: Upload lên Cloudinary
     const response = await axios.post(
       `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,

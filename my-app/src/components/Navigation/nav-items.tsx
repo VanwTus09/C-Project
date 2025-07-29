@@ -9,7 +9,7 @@ interface NavigationItemProps {
   id: string;
   imageUrl: string;
   name: string;
-  priorityImageUrl: string;
+  priorityImageUrl: boolean;
 }
 
 export const NavigationItem = ({
@@ -35,12 +35,12 @@ export const NavigationItem = ({
           className={cn(
             "bg-primary absolute left-0 w-[4px] rounded-r-full transition-all",
             params?.serverId !== id && "group-hover:h-[20px]",
-            params?.serverId === id ? "h-[36px]" : "h-[8px]"
+            params?.serverId === id ? "h-[46px]" : "h-[8px]"
           )}
         />
         <div
           className={cn(
-            "group  relative mx-3 flex h-[48px] w-[48px] overflow-hidden rounded-[24px] transition-all",
+            "group  relative mx-3 flex h-[72px] w-[72px] overflow-hidden rounded-[24px] transition-all",
             params?.serverId === id &&
               "bg-primary/10 text-primary rounded-[16px]"
           )}
@@ -48,8 +48,8 @@ export const NavigationItem = ({
           {imageUrl ? (
             <Image
               fill
-              priority={!!priorityImageUrl && priorityImageUrl === imageUrl}
-              sizes="48px"
+              priority={!!priorityImageUrl}
+              sizes="72px"
               src={imageUrl}
               alt="Channel"
             />

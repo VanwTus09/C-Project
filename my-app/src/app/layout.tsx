@@ -40,16 +40,16 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        >
+        ><SWRProvider>
           <ModalProvider>
-          <SWRProvider>
+          
             
             <QueryProvider>
               <AuthProvider><RealtimeProvider>{children}</RealtimeProvider></AuthProvider>
                 
             </QueryProvider>
-          </SWRProvider>
-          </ModalProvider>
+          
+          </ModalProvider></SWRProvider>
         </ThemeProvider>
       </body>
     </html>

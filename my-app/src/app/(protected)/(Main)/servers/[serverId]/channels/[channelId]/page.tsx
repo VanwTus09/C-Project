@@ -13,7 +13,7 @@ import { ChannelType } from "@/models";
 
 const ChannelIdPage = () => {
   const router = useRouter();
-  const params = useParams<{ serverId: string; channelId: string }>();
+  const params = useParams<{ serverId: string ,channelId: string }>();
 
   const {  isLoading: profileLoading } = useAuth();
   const { channel, isLoading: channelLoading } = useChannelByChannelId(
@@ -21,7 +21,7 @@ const ChannelIdPage = () => {
     params.serverId
   );
   const { member , isLoading: memberLoading } = useFirstMemberByServerIdIfMember(
-    params.serverId
+   params.serverId
   );
   const isLoading = profileLoading || channelLoading || memberLoading;
 
@@ -49,7 +49,6 @@ const ChannelIdPage = () => {
   }
   const socketProps = {
     channelId: channel.id,
-    serverId: member?.serverId,// chỗ ni đang undefined
     memberId: member.id,
   };
   return (

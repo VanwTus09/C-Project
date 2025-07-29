@@ -19,11 +19,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useModal, useServers } from "@/hooks";
+import { useModal, useServers, useServerStore } from "@/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { supabase } from "@/lib/supabase/supabase";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -41,7 +44,24 @@ export const CreateServerModal = () => {
   const { isOpen, onClose, type } = useModal();
   const { createServer } = useServers();
   const router = useRouter();
+  const uploadImage = async (file: File, userId: string) => {
+    const path = `${userId}/${Date.now()}-${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("server.images")
+      .upload(path, file);
 
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = supabase.storage
+      .from("server.images")
+      .getPublicUrl(path);
+
+    if (!urlData?.publicUrl) {
+      throw new Error("Cannot get public URL of uploaded image");
+    }
+
+    return urlData.publicUrl;
+  };
   const isModalOpen = isOpen && type === "createServer";
 
   const form = useForm({
@@ -56,10 +76,67 @@ export const CreateServerModal = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await createServer({ name: values.name, image: values.image });
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("You are not authenticated");
+      
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (profileError || !profileData) throw new Error("Profile not found");
+      const { fetchServers } = useServerStore.getState();
+      const profileId = profileData.id;
+      const file = values.image as File;
+      const imageUrl = await uploadImage(file, user.id);
+      const inviteCode = uuidv4();
 
-    form.reset();
-    router.refresh();
-    onClose();
+      const { data: server, error: serverError } = await supabase
+        .from("servers")
+        .insert({
+          name: values.name,
+          image_url: imageUrl,
+          invite_code: inviteCode,
+          profile_id: profileId,
+        })
+        .select("id")
+        .single();
+      if (serverError) throw serverError;
+
+      await supabase.from("members").insert({
+        role: "ADMIN",
+        profile_id: profileId,
+        server_id: server.id,
+      });
+
+      const { data: channel, error: channelError } = await supabase
+        .from("channels")
+        .insert({
+          name: "general",
+          type: "TEXT",
+          profile_id: profileId,
+          server_id: server.id,
+        })
+        .select("id")
+        .single();
+      if (channelError) throw channelError;
+
+      toast.success("Server created!");
+
+      
+      router.replace(`/servers/${server.id}/channels/${channel.id}`);
+      fetchServers(profileData.id)
+      form.reset();
+      onClose();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+      toast.error(message);
+    }
   };
 
   const handleClose = () => {

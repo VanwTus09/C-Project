@@ -45,8 +45,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
   if (!profile || !server) return null;
 
   const textChannels =
-    server?.channels ??
-    [].filter((channel: Channel) => channel.type === ChannelType.TEXT);
+    server?.channels.filter((channel: Channel) => channel.type === ChannelType.TEXT);
   const audioChannels =
     server?.channels ??
     [].filter((channel: Channel) => channel.type === ChannelType.AUDIO);
@@ -55,8 +54,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
     [].filter((channel: Channel) => channel.type === ChannelType.VIDEO);
 
   const members =
-    server?.members ??
-    [].filter((member: Member) => member.profileId !== profile?.id);
+    server?.members.filter((member: Member) => member.profileId !== profile?.id);
 
   const role = server?.members?.find(
     (member: Member) => member.profileId === profile?.id

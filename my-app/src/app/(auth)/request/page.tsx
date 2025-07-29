@@ -51,7 +51,7 @@ export default function AuthRequest() {
             const { data: channel } = await supabase
               .from('channels')
               .select('id')
-              .eq('serverId', serverId)
+              .eq('server_id', serverId)
               .order('created_at', { ascending: true })
               .limit(1)
               .single();

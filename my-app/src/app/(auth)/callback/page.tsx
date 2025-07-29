@@ -18,10 +18,11 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
       const user = userData?.user;
 
-      if (userError ||  !user?.email) {
+      if (userError || !user?.email) {
         console.error("Lỗi lấy user:", userError?.message);
         router.replace("/");
         return;
@@ -50,13 +51,16 @@ export default function AuthCallbackPage() {
           }
         }
 
-        const { error: insertError } = await supabase.from("profiles").insert({
-          id: user.id,
-          user_id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || "",
-          image_url: uploadedAvatar,
-        });
+        const { error: insertError } = await supabase.from("profiles").upsert(
+          {
+            id: user.id,
+            user_id: user.id,
+            email: user.email,
+            name: user.user_metadata?.full_name || "",
+            image_url: uploadedAvatar,
+          },
+          { onConflict: "id" }
+        );
 
         if (insertError) {
           console.error("Lỗi tạo profile:", insertError.message);
@@ -71,7 +75,7 @@ export default function AuthCallbackPage() {
       // Kiểm tra server đã tham gia
       const { data: servers, error: serverError } = await supabase
         .from("servers")
-        .select("id") 
+        .select("id")
         .eq("profile_id", user.id)
         .limit(1);
 
@@ -80,10 +84,10 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // if (!servers || servers.length === 0) {
-      //   router.replace("/servers");
-      //   return;
-      // }
+      if (!servers || servers.length === 0) {
+        router.replace("/request");
+        return;
+      }
 
       const serverId = servers[0]?.id;
 
@@ -103,11 +107,11 @@ export default function AuthCallbackPage() {
 
       const channelId = channels?.[0]?.id;
 
-      if (channelId) {
-        router.replace(`/servers/${serverId}/channels/${channelId}`);
-      } else {
-        router.replace(`/servers/${serverId}/channels/${channelId}`);
-      }
+      router.replace(
+        channelId
+          ? `servers/${serverId}/channels/${channelId}`
+          : `servers/${serverId}`
+      );
     };
 
     handleAuthRedirect();

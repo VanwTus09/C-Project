@@ -14,7 +14,6 @@ const InviteCodePage = () => {
   const hasJoinedRef = useRef(false);
   const { profile, isLoading } = useAuth();
   const { joinServer } = useServers();
-
   const { server: existingServer, isLoading: existingServerLoading } =
     useServerByInviteCodeIfMember(params.inviteCode);
 

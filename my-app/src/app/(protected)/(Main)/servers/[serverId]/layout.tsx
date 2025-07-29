@@ -19,7 +19,7 @@ const ServerIdLayout = ({ children }: { children: React.ReactNode }) => {
   }, [profile, servers, profileLoading, serverLoading, router]);
 
   if (profileLoading || serverLoading)
-    return <div>...Loading chỗ layout serverId</div>;
+    return <div>...Loading </div>;
   return (
     <div className="h-full">
       <div className="fixed inset-y-0 z-20  h-full w-60 flex-col flex">
