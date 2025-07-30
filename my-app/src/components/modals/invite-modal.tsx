@@ -22,7 +22,6 @@ export const InviteModal = () => {
   const { server } = data;
 
   const inviteUrl = `${origin}/invite/${server?.invite_code}`;
-  console.log(server?.invite_code);
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
