@@ -7,26 +7,46 @@ import { uploadToCloudinaryFromUrl } from "@/lib/cloudinary";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
+
   useEffect(() => {
     const handleAuthRedirect = async () => {
+      const code = new URLSearchParams(window.location.search).get("code");
+
+      if (!code) {
+        console.error("Không tìm thấy mã xác thực (code) trong URL.");
+        router.replace("/login");
+        return;
+      }
+
+      // 1. Đổi mã `code` lấy từ URL thành session
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (exchangeError) {
+        console.error("Lỗi xác thực:", exchangeError.message);
+        router.replace("/login");
+        return;
+      }
+
+      // 2. Lấy session mới
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData?.session;
 
       if (!session) {
-        router.replace("/");
+        router.replace("/login");
         return;
       }
 
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      // 3. Lấy thông tin user
+      const { data: userData, error: userError } = await supabase.auth.getUser();
       const user = userData?.user;
 
       if (userError || !user?.email) {
         console.error("Lỗi lấy user:", userError?.message);
-        router.replace("/");
+        router.replace("/login");
         return;
       }
 
+      // 4. Kiểm tra profile
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -40,8 +60,8 @@ export default function AuthCallbackPage() {
 
       if (!profile) {
         let uploadedAvatar: string | null = null;
-
         const avatarUrl = user.user_metadata?.avatar_url;
+
         if (avatarUrl) {
           try {
             uploadedAvatar = await uploadToCloudinaryFromUrl(avatarUrl);
@@ -66,12 +86,12 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        // Sau khi tạo profile, chuyển đến tạo server
+        // Tạo profile mới → chuyển sang request server
         router.replace("/request");
         return;
       }
 
-      // Kiểm tra server đã tham gia
+      // 5. Tìm server
       const { data: servers, error: serverError } = await supabase
         .from("servers")
         .select("id")
@@ -90,7 +110,7 @@ export default function AuthCallbackPage() {
 
       const serverId = servers[0]?.id;
 
-      // Lấy channel đầu tiên trong server
+      // 6. Tìm channel đầu tiên
       const { data: channels, error: channelError } = await supabase
         .from("channels")
         .select("id")
@@ -108,8 +128,8 @@ export default function AuthCallbackPage() {
 
       router.replace(
         channelId
-          ? `servers/${serverId}/channels/${channelId}`
-          : `servers/${serverId}`
+          ? `/servers/${serverId}/channels/${channelId}`
+          : `/servers/${serverId}`
       );
     };
 
