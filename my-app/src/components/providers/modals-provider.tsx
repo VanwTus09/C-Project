@@ -4,6 +4,7 @@ import {
   CreateServerModal,
   DeleteChannelModal,
   DeleteMessageModal,
+  InviteModal,
   MembersModal,
   MessageFileModal,
 } from "@/components/modals";
@@ -24,6 +25,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       <CreateServerModal />
       <MembersModal />
       <DeleteChannelModal />
+      <InviteModal/>
       <MessageFileModal />
       <DeleteMessageModal />
     </>

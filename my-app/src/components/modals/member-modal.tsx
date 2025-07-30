@@ -112,7 +112,7 @@ export const MembersModal = () => {
                 </div>
                 <p className="text-xs text-zinc-500">{member.profile.email}</p>
               </div>
-              {server.profileId !== member.profileId &&
+              {server.profile_id !== member.profile_id &&
                 loadingId !== member.id && (
                   <div className="ml-auto">
                     <DropdownMenu>

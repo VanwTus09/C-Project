@@ -37,21 +37,21 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
   };
 
   const joinServer = async ({
-    inviteCode,
-    profileId,
+    invite_code,
+    profile_id,
   }: {
-    inviteCode: string;
-    profileId: string;
+    invite_code: string;
+    profile_id: string;
   }): Promise<Server | undefined> => {
     try {
       const { data: server, error: findError } = await supabase
       .from("servers")
       .select("*")
-      .eq("invite_code", inviteCode)
+      .eq("invite_code", invite_code)
       .single();
 
     if (findError || !server) {
-      console.error("Không tìm thấy server từ inviteCode:", findError);
+      console.error("Không tìm thấy server từ invite_code:", findError);
       return;
     
     } 
@@ -59,7 +59,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
     const { data: existingMember } = await supabase
       .from("members")
       .select("*")
-      .eq("profile_id", profileId)
+      .eq("profile_id", profile_id)
       .eq("server_id", server.id)
       .single();
 
@@ -70,7 +70,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
     const {  error: insertError } = await supabase
       .from("members")
       .insert({
-        profile_id: profileId,
+        profile_id: profile_id,
         server_id: server.id,
         role:"GUEST",
       })

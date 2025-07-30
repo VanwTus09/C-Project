@@ -36,16 +36,15 @@ const formSchema = z.object({
   ]),
 });
 const joinServerFormSchema = z.object({
-  inviteLink : z.string().min(1,{
-    message: "Invite link is required"
-  })
-})
+  inviteLink: z.string().min(1, {
+    message: "Invite link is required",
+  }),
+});
 type FormValues = z.infer<typeof formSchema>;
 
 interface InitialModalProps {
   onServerCreated?: (serverId: string, channelId: string) => void;
 }
-
 
 export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
   const router = useRouter();
@@ -63,8 +62,8 @@ export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
       inviteLink: "",
     },
   });
- const joinServerOnSubmit = async (
-    values: z.infer<typeof joinServerFormSchema>,
+  const joinServerOnSubmit = async (
+    values: z.infer<typeof joinServerFormSchema>
   ) => {
     router.push(`invite/${values.inviteLink}`);
   };
@@ -88,7 +87,7 @@ export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
 
     return urlData.publicUrl;
   };
- 
+
   //  const customServerOnSubmit = async (
   //   values: z.infer<typeof formSchema>,
   // ) => {
@@ -100,84 +99,83 @@ export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
   // };
 
   const onSubmit = async (values: FormValues) => {
-  try {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error("You are not authenticated");
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("You are not authenticated");
 
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("user_id", user.id)
-      .single();
-    if (profileError || !profileData) throw new Error("Profile not found");
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (profileError || !profileData) throw new Error("Profile not found");
 
-    const profileId = profileData.id;
+      const profileId = profileData.id;
 
-    // 🔍 Check server name already exists
-    const { data: existingServer, error: nameCheckError } = await supabase
-      .from("servers")
-      .select("id")
-      .eq("name", values.name)
-      .eq("profile_id", profileId)
-      .maybeSingle();
+      // 🔍 Check server name already exists
+      const { data: existingServer, error: nameCheckError } = await supabase
+        .from("servers")
+        .select("id")
+        .eq("name", values.name)
+        .eq("profile_id", profileId)
+        .maybeSingle();
 
-    if (nameCheckError) throw nameCheckError;
-    if (existingServer) {
-      toast.error("A server with this name already exists.");
-      return;
-    }
+      if (nameCheckError) throw nameCheckError;
+      if (existingServer) {
+        toast.error("A server with this name already exists.");
+        return;
+      }
 
-    const file = values.image as File;
-    const imageUrl = await uploadImage(file, user.id);
-    const inviteCode = uuidv4();
+      const file = values.image as File;
+      const imageUrl = await uploadImage(file, user.id);
+      const invite_code = uuidv4();
 
-    const { data: server, error: serverError } = await supabase
-      .from("servers")
-      .insert({
-        name: values.name,
-        image_url: imageUrl,
-        invite_code: inviteCode,
-        profile_id: profileId,
-      })
-      .select("id")
-      .single();
-    if (serverError) throw serverError;
+      const { data: server, error: serverError } = await supabase
+        .from("servers")
+        .insert({
+          name: values.name,
+          image_url: imageUrl,
+          invite_code: invite_code,
+          profile_id: profileId,
+        })
+        .select("id")
+        .single();
+      if (serverError) throw serverError;
 
-    await supabase.from("members").insert({
-      role: "ADMIN",
-      profile_id: profileId,
-      server_id: server.id,
-    });
-
-    const { data: channel, error: channelError } = await supabase
-      .from("channels")
-      .insert({
-        name: "general",
-        type: "TEXT",
+      await supabase.from("members").insert({
+        role: "ADMIN",
         profile_id: profileId,
         server_id: server.id,
-      })
-      .select("id")
-      .single();
-    if (channelError) throw channelError;
+      });
 
-    toast.success("Server created!");
+      const { data: channel, error: channelError } = await supabase
+        .from("channels")
+        .insert({
+          name: "general",
+          type: "TEXT",
+          profile_id: profileId,
+          server_id: server.id,
+        })
+        .select("id")
+        .single();
+      if (channelError) throw channelError;
 
-    if (onServerCreated) {
-      onServerCreated(server.id, channel.id);
-    } else {
-      router.replace(`/servers/${server.id}/channels/${channel.id}`);
+      toast.success("Server created!");
+
+      if (onServerCreated) {
+        onServerCreated(server.id, channel.id);
+      } else {
+        router.replace(`/servers/${server.id}/channels/${channel.id}`);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+      toast.error(message);
     }
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Something went wrong";
-    toast.error(message);
-  }
-};
-
+  };
 
   return (
     <Dialog open>
@@ -231,11 +229,7 @@ export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
                         {...field}
                       />
                     </FormControl>
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="ml-2"
-                    >
+                    <Button type="submit" disabled={isLoading} className="ml-2">
                       {isLoading ? "Creating..." : "Create"}
                     </Button>
                   </div>
@@ -276,7 +270,6 @@ export const InitialModal = ({ onServerCreated }: InitialModalProps) => {
               />
             </div>
           </form>
-
         </Form>
       </DialogContent>
     </Dialog>

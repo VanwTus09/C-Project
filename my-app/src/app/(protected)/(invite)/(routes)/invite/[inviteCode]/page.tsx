@@ -1,11 +1,11 @@
 "use client";
 
-import { useAuth, useServerByInviteCodeIfMember, useServers } from "@/hooks";
+import { useAuth, useServerByinviteCodeIfMember, useServers } from "@/hooks";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Params = {
-  inviteCode: string;
+  invite_code: string;
 };
 
 const InviteCodePage = () => {
@@ -14,24 +14,41 @@ const InviteCodePage = () => {
   const hasJoinedRef = useRef(false);
   const { profile, isLoading } = useAuth();
   const { joinServer } = useServers();
-  const { server: existingServer, isLoading: existingServerLoading } =
-    useServerByInviteCodeIfMember(params.inviteCode);
 
+  // Tạo biến để giữ server sau khi profile sẵn sàng
+  const [inviteCodeReady, setInviteCodeReady] = useState(false);
+
+  const {
+    server: existingServer,
+    isLoading: existingServerLoading,
+  } = useServerByinviteCodeIfMember(
+    inviteCodeReady ? params.invite_code : "",
+    inviteCodeReady ? profile?.id : ""
+  );
+
+  // Chờ profile và invite_code sẵn sàng rồi mới cho phép gọi API
   useEffect(() => {
-    if (isLoading || existingServerLoading) return;
+    if (!isLoading && profile && params.invite_code) {
+      setInviteCodeReady(true);
+    }
+  }, [isLoading, profile, params.invite_code]);
+
+  // Logic xử lý tham gia server
+  useEffect(() => {
+    if (isLoading || existingServerLoading || !inviteCodeReady) return;
     if (!profile) return router.replace("/");
-    if (!params.inviteCode) return router.replace("/");
+    if (!params.invite_code) return router.replace("/");
+
     if (existingServer) {
       return router.replace(`/servers/${existingServer.id}`);
     }
 
     if (existingServer !== undefined && !hasJoinedRef.current) {
       hasJoinedRef.current = true;
-
       (async () => {
         const server = await joinServer({
-          inviteCode: params.inviteCode,
-          profileId: profile.id,
+          invite_code: params.invite_code,
+          profile_id: profile.id,
         });
         if (server) router.replace(`/servers/${server.id}`);
       })();
@@ -41,9 +58,10 @@ const InviteCodePage = () => {
     existingServerLoading,
     profile,
     router,
-    params.inviteCode,
+    params.invite_code,
     existingServer,
     joinServer,
+    inviteCodeReady,
   ]);
 
   return null;

@@ -14,7 +14,6 @@ export const useServerByServerId = (
       ? `/rest/v1/servers?id=eq.${serverId}&select=*,channels(*),members(*,profile:profiles(*))`
       : null;
   }, [serverId]);
-  
   const {
     data :server ,
     error,

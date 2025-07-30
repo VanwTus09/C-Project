@@ -29,16 +29,16 @@ export const SidebarSection = ({
 
   return (
     <div className="flex items-center justify-between py-2">
-      <p className="dark:text-zin-400 text-xs font-semibold text-zinc-500 uppercase">
+      <p className="dark:text-zin-400 text-lg font-semibold text-zinc-500 uppercase m-2">
         {label}
       </p>
       {role !== Role.GUEST && sectionType === "channels" && (
         <ActionTooltip label="Create Channel" side="top">
           <button
             onClick={() => onOpen("createChannel", { channelType })}
-            className="cursor-pointer text-zinc-500 transition hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
+            className="cursor-pointer text-zinc-500 transition hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 hover:rotate-180"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-8 w-8 " />
           </button>
         </ActionTooltip>
       )}

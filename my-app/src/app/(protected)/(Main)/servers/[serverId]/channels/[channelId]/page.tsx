@@ -81,7 +81,10 @@ const ChannelIdPage = () => {
       )}
 
       {channel.type === ChannelType.AUDIO && (
+      <>
         <MediaRoom chatId={channel.id} video={false} audio={true} />
+        {console.log("Rendering AUDIO MediaRoom", channel)}
+        </>
       )}
 
       {channel.type === ChannelType.VIDEO && (

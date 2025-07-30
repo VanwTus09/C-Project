@@ -1,5 +1,4 @@
 "use client";
-
 import { MemberRole, Role, ServerWithChannelWithMember } from "@/models";
 import {
   DropdownMenu,
@@ -43,15 +42,19 @@ export const SidebarHeader = ({
             <ChevronDown className="ml-auto h-5 w-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 space-y-[2px] text-xs font-medium text-black dark:text-neutral-400">
+        <DropdownMenuContent className="w-56 space-y-[2px] text-xl font-medium text-black dark:text-neutral-400">
           {isAdmin && (
             <DropdownMenuItem
-              onClick={() => onOpen("invite", { server })}
+            
+              onClick={() => {onOpen("invite", { server }); console.log("click button")}}
+              
               className="cursor-pointer px-3 py-2 text-sm text-indigo-600 dark:text-indigo-400"
             >
               Invite People
               <UserPlus className="ml-auto h-4 w-4" />
+              
             </DropdownMenuItem>
+            
           )}
           {isAdmin && (
             <DropdownMenuItem
@@ -73,7 +76,7 @@ export const SidebarHeader = ({
               <Users className="ml-auto h-4 w-4" />
             </DropdownMenuItem>
           )}
-          {isModerator && (
+          {!isModerator && (
             <DropdownMenuItem
               onClick={() => onOpen("createChannel")}
               className="cursor-pointer px-3 py-2 text-sm"
@@ -95,7 +98,7 @@ export const SidebarHeader = ({
           {!isAdmin && (
             <DropdownMenuItem
               onClick={() => onOpen("leaveServer", { server })}
-              className="cursor-pointer px-3 py-2 text-sm text-rose-500"
+              className="cursor-pointer px-3 py-2 text-xl text-rose-500"
             >
               Leave Server
               <LogOut className="ml-auto h-4 w-4" />

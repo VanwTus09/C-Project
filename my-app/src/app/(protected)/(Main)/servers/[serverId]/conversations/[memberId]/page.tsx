@@ -20,7 +20,7 @@ const MemberIdPage = () => {
   );
 
   const otherMember =
-    conversation?.memberOne.profileId === profile?.id
+    conversation?.memberOne.profile_id === profile?.id
       ? conversation?.memberTwo
       : conversation?.memberOne;
 

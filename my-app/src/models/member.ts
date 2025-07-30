@@ -10,8 +10,8 @@ export type MemberRole = "ADMIN" | "MODERATOR" | "GUEST";
 
 export interface Member extends ApiResponse {
   role: string;
-  profileId: string;
-  serverId: string;
+  profile_id: string;
+  server_id: string;
 }
 
 export interface MemberWithProfile extends Member {

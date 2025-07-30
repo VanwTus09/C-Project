@@ -40,6 +40,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
     if (profileLoading || serverLoading) return;
     if (!profile) router.replace("/");
   }, [profile, router, server, profileLoading, serverLoading]);
+  
 
   if (profileLoading || serverLoading) return null;
   if (!profile || !server) return null;
@@ -47,21 +48,21 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
   const textChannels =
     server?.channels.filter((channel: Channel) => channel.type === ChannelType.TEXT);
   const audioChannels =
-    server?.channels ??
-    [].filter((channel: Channel) => channel.type === ChannelType.AUDIO);
+    (server?.channels ??
+    []).filter((channel: Channel) => channel.type === ChannelType.AUDIO);
   const videoChannels =
-    server?.channels ??
-    [].filter((channel: Channel) => channel.type === ChannelType.VIDEO);
-
+    (server?.channels ??
+    []).filter((channel: Channel) => channel.type === ChannelType.VIDEO);
   const members =
-    server?.members.filter((member: Member) => member.profileId !== profile?.id);
+    server?.members.filter((member: Member) => member.profile_id !== profile?.id);
 
-  const role = server?.members?.find(
-    (member: Member) => member.profileId === profile?.id
+  const role = server.members?.find(
+    (member: Member) => member.profile_id === profile.id
   )?.role;
+  
 
   return (
-    <div className="text-primary flex h-full w-full flex-col bg-[#F2F3F5] dark:bg-[#2B2D31]">
+    <div className="text-primary flex h-full w-full flex-col bg-[#F2F3F5] dark:bg-[#2B2D31] text-xl">
       {server && (
         <SidebarHeader
           server={server}
@@ -69,8 +70,8 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
           role={role as MemberRole}
         />
       )}
-      <ScrollArea className="flex-1 px-3">
-        <div className="mt-2">
+      <ScrollArea className="flex-1 px-3 ">
+        <div className="mt-2 text-xl">
           <SidebarSearch
             data={[
               {
@@ -86,7 +87,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
               },
               {
                 label: "Voice Channels",
-                type: "channel",
+                type: "member",
                 data: audioChannels.map((channel) => ({
                   id: channel.id,
                   name: channel.name,
@@ -135,7 +136,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
             </div>
           </div>
         )}
-        {!!textChannels?.length && (
+        {!!audioChannels?.length && (
           <div className="mb-2">
             <SidebarSection
               sectionType="channels"

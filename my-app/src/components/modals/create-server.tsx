@@ -82,7 +82,7 @@ export const CreateServerModal = () => {
         error: authError,
       } = await supabase.auth.getUser();
       if (authError || !user) throw new Error("You are not authenticated");
-      
+
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("id")
@@ -93,14 +93,14 @@ export const CreateServerModal = () => {
       const profileId = profileData.id;
       const file = values.image as File;
       const imageUrl = await uploadImage(file, user.id);
-      const inviteCode = uuidv4();
+      const invite_code = uuidv4();
 
       const { data: server, error: serverError } = await supabase
         .from("servers")
         .insert({
           name: values.name,
           image_url: imageUrl,
-          invite_code: inviteCode,
+          invite_code: invite_code,
           profile_id: profileId,
         })
         .select("id")
@@ -127,9 +127,8 @@ export const CreateServerModal = () => {
 
       toast.success("Server created!");
 
-      
       router.replace(`/servers/${server.id}/channels/${channel.id}`);
-      fetchServers(profileData.id)
+      fetchServers(profileData.id);
       form.reset();
       onClose();
     } catch (error) {

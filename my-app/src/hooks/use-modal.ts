@@ -41,20 +41,20 @@ interface ModalData {
 interface ServerStore {
   servers: Server[];
   setServers: (servers: Server[]) => void;
-  fetchServers: (profileId: string) => Promise<void>;
+  fetchServers: (profile_id: string) => Promise<void>;
 }
 
 export const useServerStore = create<ServerStore>((set) => ({
   servers: [],
   setServers: (servers) => set({ servers }),
-  fetchServers: async (profileId: string) => {
+  fetchServers: async (profile_id: string) => {
     const { data, error } = await supabase
       .from("servers")
       .select("id, name, image_url, profile_id, invite_code, created_at , updated_at")
-      .eq("profile_id", profileId);
+      .eq("profile_id", profile_id);
 
     if (!error && data) {
-      set({ servers: data.map(s => ({ id: s.id, name: s.name, imageUrl: s.image_url, inviteCode:s.invite_code , updatedAt:s.updated_at, createdAt:s.created_at, profileId:s.profile_id})) });
+      set({ servers: data.map(s => ({ id: s.id, name: s.name, imageUrl: s.image_url, invite_code:s.invite_code , updatedAt:s.updated_at, createdAt:s.created_at, profile_id:s.profile_id})) });
     }
   }
 }));

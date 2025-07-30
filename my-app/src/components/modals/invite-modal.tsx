@@ -1,6 +1,4 @@
 "use client";
-
-import { axiosInstance } from "@/api/axiosIntance";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,20 +9,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useModal, useOrigin } from "@/hooks";
+import { supabase } from "@/lib/supabase/supabase";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { useState } from "react";
-
+import { v4 as uuidv4 } from "uuid";
 export const InviteModal = () => {
   const { isOpen, onOpen, onClose, type, data } = useModal();
   const origin = useOrigin();
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const isModalOpen = isOpen && type === "invite";
   const { server } = data;
 
-  const inviteUrl = `${origin}/invite/${server?.inviteCode}`;
-
+  const inviteUrl = `${origin}/invite/${server?.invite_code}`;
+  console.log(server?.invite_code);
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
@@ -34,16 +32,24 @@ export const InviteModal = () => {
   };
 
   const handleGenerateNewLink = async () => {
-    try {
-      if (!server) return;
-      setIsLoading(true);
-      const response = await axiosInstance.patch(
-        `/rest/v1/servers/${server.id}/invite_code`,
-      );
+    if (!server) return;
 
-      onOpen("invite", { server: response.data });
+    try {
+      setIsLoading(true);
+      const newinvite_code = uuidv4(); // hoặc mày có thể tự gen theo format riêng
+
+      const { data, error } = await supabase
+        .from("servers")
+        .update({ invite_code: newinvite_code })
+        .eq("id", server.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      onOpen("invite", { server: data }); // cập nhật lại invite modal
     } catch (error) {
-      console.log(error);
+      console.error("Failed to generate new invite code:", error);
     } finally {
       setIsLoading(false);
     }

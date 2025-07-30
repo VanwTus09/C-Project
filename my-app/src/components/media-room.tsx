@@ -1,5 +1,4 @@
 "use client";
-
 import {
   ControlBar,
   GridLayout,
@@ -10,7 +9,7 @@ import {
 } from "@livekit/components-react";
 import { Room, Track } from "livekit-client";
 import "@livekit/components-styles";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks";
 
@@ -22,49 +21,55 @@ interface MediaRoomProps {
 
 export const MediaRoom = ({ chatId, video, audio }: MediaRoomProps) => {
   const [token, setToken] = useState("");
-  const [roomInstance] = useState(
-    () =>
-      new Room({
-        // Optimize video quality for each participant's screen
-        adaptiveStream: true,
-        // Enable automatic audio/video quality optimization
-        dynacast: true,
-      }),
-  );
+  const roomRef = useRef<Room | null>(null);
   const { profile, isLoading } = useAuth();
 
   useEffect(() => {
     if (!profile || isLoading) return;
 
     const name = profile.name;
+    const LIVEKIT_URL = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
-    let mounted = true;
-    (async () => {
+    if (!LIVEKIT_URL) {
+      console.error("Missing Livekit URL");
+      return;
+    }
+
+    let isMounted = true;
+
+    const connectRoom = async () => {
       try {
-        const resp = await fetch(
-          `/rest/livekit?room=${chatId}&username=${name}`,
+        const res = await fetch(
+          `/api/livekit?room=${chatId}&username=${encodeURIComponent(name)}`
         );
-        const data = await resp.json();
-        if (!mounted) return;
+        const data = await res.json();
+        if (!isMounted) return;
+
         if (data.token) {
-          await roomInstance.connect(
-            process.env.NEXT_PUBLIC_LIVEKIT_URL!,
-            data.token,
-          );
-          await roomInstance.localParticipant.setCameraEnabled(video);
-          await roomInstance.localParticipant.setMicrophoneEnabled(audio);
+          const room = new Room({
+            adaptiveStream: true,
+            dynacast: true,
+          });
+
+          await room.connect(LIVEKIT_URL, data.token);
+          await room.localParticipant.setCameraEnabled(video);
+          await room.localParticipant.setMicrophoneEnabled(audio);
+
+          roomRef.current = room;
           setToken(data.token);
         }
       } catch (e) {
-        console.error(e);
+        console.error("Failed to connect to Livekit room:", e);
       }
-    })();
-
-    return () => {
-      mounted = false;
-      roomInstance.disconnect();
     };
-  }, [audio, chatId, isLoading, profile, roomInstance, video]);
+
+    connectRoom();
+    return () => {
+      isMounted = false;
+      roomRef.current?.disconnect();
+      roomRef.current = null;
+    };
+  }, [audio, chatId, isLoading, profile, video]);
 
   if (token === "")
     return (
@@ -75,16 +80,13 @@ export const MediaRoom = ({ chatId, video, audio }: MediaRoomProps) => {
     );
 
   return (
-    <RoomContext.Provider value={roomInstance}>
+    <RoomContext.Provider value={roomRef.current!}>
       <div
         data-lk-theme="default"
         className="flex flex-1 flex-col overflow-hidden"
       >
-        {/* Your custom component with basic video conferencing functionality. */}
         <MyVideoConference />
-        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
         <RoomAudioRenderer />
-        {/* Controls for the user to start/stop audio, video, and screen share tracks */}
         <ControlBar />
       </div>
     </RoomContext.Provider>
@@ -92,19 +94,16 @@ export const MediaRoom = ({ chatId, video, audio }: MediaRoomProps) => {
 };
 
 function MyVideoConference() {
-  // `useTracks` returns all camera and screen share tracks. If a user
-  // joins without a published camera track, a placeholder track is returned.
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: false },
+    { onlySubscribed: false }
   );
+
   return (
     <GridLayout tracks={tracks} className="flex-1">
-      {/* The GridLayout accepts zero or one child. The child is used
-      as a template to render all passed in tracks. */}
       <ParticipantTile />
     </GridLayout>
   );
