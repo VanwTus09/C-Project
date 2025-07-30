@@ -8,13 +8,6 @@ import { uploadToCloudinaryFromUrl } from "@/lib/cloudinary";
 export default function AuthCallbackPage() {
   const router = useRouter();
   useEffect(() => {
-  const code = new URLSearchParams(window.location.search).get('code');
-  if (code) {
-    supabase.auth.exchangeCodeForSession(code);
-  }
-}, []);
-
-  useEffect(() => {
     const handleAuthRedirect = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData?.session;
