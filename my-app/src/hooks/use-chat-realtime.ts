@@ -24,18 +24,20 @@ export const useChatRealtime = ({
   paramKey
 }: ChatRealtimeProps): void => {
   const queryClient = useQueryClient();
-  const fetchFullMessage = async (messageId: string) => {
+  const fetchFullMessage = async (messageId:string) => {
   const { data, error } = await supabase
     .from("messages")
     .select("*, member:member_id(*, profile:profile_id(*))")
-    .eq("id", messageId)
-    .single();
+    .eq("id",messageId)
+    .maybeSingle();
 
   if (error || !data) return null;
   return data as MessageWithMemberWithProfile;
+  
 };
   useEffect(() => {
     if (!paramKey || !channelId) return;
+    if (!queryKey || !paramKey || !channelId) return;
     const channelName = `realtime:messages:${paramKey}:${paramValue}`;
     const channel = supabase
       .channel(channelName)
@@ -50,16 +52,13 @@ export const useChatRealtime = ({
         async (payload) => {
           const message = await fetchFullMessage(payload.new.id) ;
           if(!message) return
-
-          queryClient.setQueryData<PaginatedMessages>([queryKey], (oldData) => {
+          queryClient.setQueryData<PaginatedMessages>(([queryKey]), (oldData) => {
             if (!oldData) return oldData;
-
             const newPages = [...oldData.pages];
             newPages[0] = {
               ...newPages[0],
               messages: [message, ...newPages[0].messages],
             };
-
             return { ...oldData, pages: newPages};
           });
         }

@@ -52,7 +52,7 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
 
     return () => {
       _channel.unsubscribe();
-      setIsConnected(false);
+      setIsConnected(true);
     };
   }, [channelId, conversationId]);
 

@@ -1,3 +1,5 @@
+"use client"
+
 import { supabase } from "@/lib/supabase/supabase";
 import {
   Channel,
@@ -54,7 +56,7 @@ export const useServerStore = create<ServerStore>((set) => ({
       .eq("profile_id", profile_id);
 
     if (!error && data) {
-      set({ servers: data.map(s => ({ id: s.id, name: s.name, imageUrl: s.image_url, invite_code:s.invite_code , updatedAt:s.updated_at, createdAt:s.created_at, profile_id:s.profile_id})) });
+      set({ servers: data.map(s => ({ id: s.id, name: s.name, imageUrl: s.image_url, invite_code:s.invite_code , updated_at:s.updated_at, created_at:s.created_at, profile_id:s.profile_id})) });
     }
   }
 }));

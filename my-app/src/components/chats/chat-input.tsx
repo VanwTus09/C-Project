@@ -55,8 +55,6 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
 
       form.reset();
       router.refresh();
-      
-
     } catch (error) {
       console.log(error);
     }

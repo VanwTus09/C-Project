@@ -1,4 +1,6 @@
 // /lib/cloudinary.ts
+"use client"
+
 import axios from "axios";
 
 export async function uploadToCloudinaryFromUrl(imageUrl: string): Promise<string | null> {

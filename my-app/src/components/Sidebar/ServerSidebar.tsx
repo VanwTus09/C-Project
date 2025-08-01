@@ -1,5 +1,4 @@
 "use client";
-
 import {
   SidebarChannel,
   SidebarHeader,
@@ -62,7 +61,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
   
 
   return (
-    <div className="text-primary flex h-full w-full flex-col bg-[#F2F3F5] dark:bg-[#2B2D31] text-xl">
+    <div className="text-primary flex h-full w-full flex-col bg-[#dbdde2] dark:bg-[#2B2D31] text-xl">
       {server && (
         <SidebarHeader
           server={server}
@@ -176,7 +175,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
             </div>
           </div>
         )}
-        {!!members?.length && (
+        {!!server.members?.length && (
           <div className="mb-2">
             <SidebarSection
               sectionType="members"
@@ -185,10 +184,12 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
               server={server}
             />
             <div className="space-y-[2px]">
-              {members.map((member) => (
+              {server.members.map((member) => (
                 <SidebarMember key={member.id} member={member} />
               ))}
+              
             </div>
+            
           </div>
         )}
       </ScrollArea>

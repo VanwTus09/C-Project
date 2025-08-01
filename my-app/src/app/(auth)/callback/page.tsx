@@ -8,19 +8,19 @@ import { uploadToCloudinaryFromUrl } from "@/lib/cloudinary";
 export default function AuthCallbackPage() {
   const router = useRouter();
   useEffect(() => {
-   
     const handleAuthRedirect = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData?.session;
 
       if (!session) {
-        router.replace("/");
+        console.log('ko cos session')
+        // router.replace("/");
         return;
       }
 
       const { data: userData, error: userError } =
         await supabase.auth.getUser();
-      const user = userData?.user;
+        const user = userData?.user;
 
       if (userError || !user?.email) {
         console.error("Lỗi lấy user:", userError?.message);

@@ -1,4 +1,6 @@
 // src/hooks/useCloudinaryUpload.ts
+"use client"
+
 import axios from "axios";
 
 export const useCloudinaryUpload = () => {

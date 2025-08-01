@@ -1,3 +1,4 @@
+"use client"
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/supabase";
 
@@ -7,7 +8,7 @@ interface ChatQueryProps {
   paramValue?: string;
 }
 
-const PAGE_SIZE = 20; // lấy 20 tin nhắn mỗi lần load
+const PAGE_SIZE = 10; // 
 
 export const useChatQuery = ({
   queryKey,
@@ -15,7 +16,6 @@ export const useChatQuery = ({
   paramValue,
 }: ChatQueryProps) => {
   
-
   const fetchMessages = async ({ pageParam = 0 }) => {
     const from = pageParam;
     const to = pageParam + PAGE_SIZE - 1;
@@ -43,13 +43,12 @@ export const useChatQuery = ({
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({ // fetch error
-    queryKey: [queryKey],
+    queryKey:[queryKey],
     queryFn: fetchMessages,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     
   });
-
   return {
     data,
     fetchNextPage,

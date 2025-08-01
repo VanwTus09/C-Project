@@ -2,14 +2,12 @@
 
 import { Fragment, useRef } from "react";
 import { Loader2, ServerCrash } from "lucide-react";
-import { format } from "date-fns";
 
 import { ChatItem, ChatWelcome } from "@/components/chats";
 import { useChatQuery, useChatScroll } from "@/hooks";
 import { MemberWithProfile, MessageWithMemberWithProfile } from "@/models";
 import { useChatRealtime } from "@/hooks/use-chat-realtime";
-
-const DATE_FORMAT = "d MMM yyyy, HH:mm";
+import dayjs from "@/lib/dayjs";
 
 interface ChatMessagesProps {
   type: "channel" | "conversation";
@@ -110,7 +108,7 @@ export const ChatMessages = ({
         </div>
       )}
 
-      <div className="mt-auto flex flex-col-reverse">
+      <div className="mt-auto flex flex-col-reverse flex-1">
         {data?.pages.map((group, i) => (
           <Fragment key={i}>
             {group.messages?.map((message: MessageWithMemberWithProfile) => (
@@ -122,11 +120,11 @@ export const ChatMessages = ({
                 fileUrl={message.fileUrl}
                 deleted={message.deleted}
                 timestamp={
-                  message.createdAt
-                    ? format(new Date(message.createdAt), DATE_FORMAT)
-                    : ""
+                  message.created_at && dayjs(message.created_at).isValid()
+                    ? dayjs(message.created_at).fromNow()
+                    : "s"
                 }
-                isUpdated={message.updatedAt !== message.createdAt}
+                isUpdated={message.updated_at !== message.created_at}
                 paramValue={message.id}
                 socketQuery={socketQuery}
                 socketBody={socketBody}
@@ -135,7 +133,6 @@ export const ChatMessages = ({
           </Fragment>
         ))}
       </div>
-
       <div ref={bottomRef} />
     </div>
   );

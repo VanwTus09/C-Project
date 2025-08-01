@@ -24,7 +24,7 @@ export const Navigation = () => {
   }, [profileLoading, profile?.id, fetchServers]);
 
   return (
-    <div className="space-y-4 flex flex-col items-center h-full text-primary bg-background dark:bg-[#1e1f22] py-3">
+    <div className="space-y-4 flex flex-col items-center h-full text-primary bg-gray-300 dark:bg-[#1e1f22] py-3">
       <NavigationAction />
       <ScrollArea className="flex-1 w-full">
         {servers.map((server: Server) => (

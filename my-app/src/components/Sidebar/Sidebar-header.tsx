@@ -56,7 +56,7 @@ export const SidebarHeader = ({
             </DropdownMenuItem>
             
           )}
-          {isAdmin && (
+          {!isAdmin && (
             <DropdownMenuItem
               onClick={() =>
                 onOpen("editServer", { server, mutateServerByServerId })
