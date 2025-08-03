@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/user-avatar";
 import { useDirectMessage, useMessage, useModal } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { MemberWithProfile, Role } from "@/models";
+import { Member, MemberWithProfile, Role } from "@/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, ShieldAlert, ShieldCheck, Trash } from "lucide-react";
 import Image from "next/image";
@@ -22,7 +22,7 @@ interface ChatItemProps {
   timestamp: string;
   fileUrl: string | null;
   deleted: boolean;
-  currentMember?: MemberWithProfile;
+  currentMember?: Member;
   isUpdated: boolean;
   paramValue: string;
   socketQuery: {

@@ -7,9 +7,9 @@ import {
   QueryProvider,
   SWRProvider,
   ThemeProvider,
+  RealtimeProvider,
 } from "@/components/providers";
 import { cn } from "@/lib/utils";
-import { RealtimeProvider } from "@/components/providers/realtime-provider";
 
 // ✅ Đặt tên biến đúng với font đang dùng
 const font = Open_Sans({
@@ -41,6 +41,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         ><SWRProvider>
+          <RealtimeProvider>
           <ModalProvider>
           
             
@@ -49,7 +50,7 @@ export default function RootLayout({
                 
             </QueryProvider>
           
-          </ModalProvider></SWRProvider>
+          </ModalProvider></RealtimeProvider></SWRProvider>
         </ThemeProvider>
       </body>
     </html>

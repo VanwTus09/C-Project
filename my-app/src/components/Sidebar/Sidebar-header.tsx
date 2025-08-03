@@ -56,7 +56,7 @@ export const SidebarHeader = ({
             </DropdownMenuItem>
             
           )}
-          {!isAdmin && (
+          {isAdmin && (
             <DropdownMenuItem
               onClick={() =>
                 onOpen("editServer", { server, mutateServerByServerId })
@@ -76,7 +76,7 @@ export const SidebarHeader = ({
               <Users className="ml-auto h-4 w-4" />
             </DropdownMenuItem>
           )}
-          {!isModerator && (
+          {isModerator && (
             <DropdownMenuItem
               onClick={() => onOpen("createChannel")}
               className="cursor-pointer px-3 py-2 text-sm"

@@ -3,7 +3,7 @@ import { Channel, MemberWithProfile } from "@/models";
 
 export interface Server extends ApiResponse {
   name: string;
-  imageUrl: string;
+  image_url: string;
   invite_code: string;
   profile_id: string;
 }

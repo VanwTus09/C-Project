@@ -16,6 +16,7 @@ export const Navigation = () => {
 
   const servers = useServerStore((state) => state.servers);
   const fetchServers = useServerStore((state) => state.fetchServers);
+  console.log("SERVERS in Navigation:", servers);
 
   useEffect(() => {
     if (!profileLoading && profile?.id) {
@@ -31,7 +32,7 @@ export const Navigation = () => {
           <div key={server.id} className="mb-4">
             <NavigationItem
               id={server.id}
-              imageUrl={server.imageUrl}
+              image_url={server.image_url}
               name={server.name}
               priorityImageUrl={params?.serverId?.toString() === server.id}
             />

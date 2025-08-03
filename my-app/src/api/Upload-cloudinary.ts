@@ -11,10 +11,10 @@ cloudinary.config({
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { imageUrl, folder } = req.body;
+  const { image_url, folder } = req.body;
 
   try {
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const response = await axios.get(image_url, { responseType: 'arraybuffer' });
     const buffer = Buffer.from(response.data, 'binary');
 
     const result = await new Promise((resolve, reject) => {

@@ -25,6 +25,7 @@ export const SidebarMember = ({ member }: ServerMemberProps) => {
   const handleClick = () => {
     router.push(`/servers/${params.serverId}/conversations/${member.id}`);
   };
+  console.log(member?.profile_id, "sidebarmemvern")
 
   return (
     <button

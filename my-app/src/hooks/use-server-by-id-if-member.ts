@@ -1,25 +1,54 @@
-"use client";
-
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/supabase";
 import { MemberWithProfile } from "@/models";
-import useSWR from "swr";
-import { SWRConfiguration } from "swr/_internal";
 
-export const useFirstMemberByServerIdIfMember = (
-  serverId: string,
-  options?: Partial<SWRConfiguration<MemberWithProfile>>,
-) => {
-  const {
-    data: member,
-    error,
-    isLoading,
-    mutate,
-  } = useSWR<MemberWithProfile>(`/rest/v1/members?server_id=eq.${serverId}&select=*`, {
-    ...options,
-  });
+interface UseMembersResult {
+  members: MemberWithProfile[];
+  membersByProfileId: Record<string, MemberWithProfile>;
+  isLoading: boolean;
+  refetch: () => Promise<void>;
+}
+
+export const useMembersByServerIdIfMember = (
+  serverId?: string
+): UseMembersResult => {
+  const [members, setMembers] = useState<MemberWithProfile[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchMembers = useCallback(async () => {
+    if (!serverId) return;
+
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from("members")
+      .select("*, profile:profiles(*)")
+      .eq("server_id", serverId);
+
+    if (!error && data) {
+      setMembers(data as MemberWithProfile[]);
+    }
+
+    setIsLoading(false);
+  }, [serverId]);
+
+  useEffect(() => {
+    if (serverId) {
+      fetchMembers();
+    }
+  }, [serverId, fetchMembers]);
+
+  const membersByProfileId = members.reduce<Record<string, MemberWithProfile>>(
+    (acc, member) => {
+      acc[member.profile_id] = member;
+      return acc;
+    },
+    {}
+  );
+
   return {
-    member,
-    error,
+    members,
+    membersByProfileId,
     isLoading,
-    mutate,
+    refetch: fetchMembers,
   };
 };

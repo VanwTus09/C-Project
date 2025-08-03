@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth, useServerByinviteCodeIfMember, useServers } from "@/hooks";
+import { useAuth, useServerByInviteCodeIfMember, useServers } from "@/hooks";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -14,6 +14,11 @@ const InviteCodePage = () => {
   const hasJoinedRef = useRef(false);
   const { profile, isLoading } = useAuth();
   const { joinServer } = useServers();
+  console.log("invite_code:", params.invite_code);
+console.log("profile.id:", profile?.id);
+console.log("params:", params);
+console.log("invite_code:", params?.invite_code);
+
 
   // Tạo biến để giữ server sau khi profile sẵn sàng
   const [inviteCodeReady, setInviteCodeReady] = useState(false);
@@ -21,7 +26,7 @@ const InviteCodePage = () => {
   const {
     server: existingServer,
     isLoading: existingServerLoading,
-  } = useServerByinviteCodeIfMember(
+  } = useServerByInviteCodeIfMember(
     inviteCodeReady ? params.invite_code : "",
     inviteCodeReady ? profile?.id : ""
   );

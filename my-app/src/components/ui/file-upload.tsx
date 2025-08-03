@@ -5,8 +5,7 @@ import Image from "next/image";
 import { Label } from "./label";
 import { Input } from "./input";
 
-
-type fileType = "imageUrl" | "image";
+type fileType = "image_url" | "image";
 
 interface FileUploadProps {
   onChange: (value?: string | File) => void;
@@ -30,11 +29,11 @@ export const FileUpload = ({
   };
 
   if (value) {
-    const imageUrl: string =
+    const image_url: string =
       typeof value === "string" ? value : URL.createObjectURL(value);
     return (
       <div className="relative h-30 w-30">
-        <Image fill className="rounded-full" src={imageUrl} alt="Upload" />
+        <Image fill className="rounded-full" src={image_url} alt="Upload" />
         <button
           className="absolute top-0 right-0 cursor-pointer rounded-full bg-rose-500 p-1 text-white shadow-sm"
           type="button"

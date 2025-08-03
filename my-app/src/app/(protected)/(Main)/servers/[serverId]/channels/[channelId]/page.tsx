@@ -1,36 +1,43 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/chats";
 import { MediaRoom } from "@/components/media-room";
 import {
   useAuth,
   useChannelByChannelId,
-  useFirstMemberByServerIdIfMember,
+  useMembersByServerIdIfMember,
 } from "@/hooks";
-import { ChannelType } from "@/models";
+import { ChannelType, Member } from "@/models";
 
 const ChannelIdPage = () => {
   const router = useRouter();
   const params = useParams<{ serverId: string ,channelId: string }>();
 
-  const {  isLoading: profileLoading } = useAuth();
+  const {profile,isLoading: profileLoading } = useAuth();
   const { channel, isLoading: channelLoading } = useChannelByChannelId(
     params.channelId,
     params.serverId
   );
-  const { member , isLoading: memberLoading } = useFirstMemberByServerIdIfMember(
+  const { members , isLoading: memberLoading , membersByProfileId } = useMembersByServerIdIfMember(
    params.serverId
   );
+  console.log('member mới lấy 1 đứa ', members )
   const isLoading = profileLoading || channelLoading || memberLoading;
-
+// Lấy member hiện tại dựa theo profile.id
+const currentMember: Member | undefined = useMemo(() => {
+    if (!profile?.id || !membersByProfileId) return undefined;
+    return membersByProfileId[profile.id];
+  }, [profile?.id, membersByProfileId]);    
   // Điều hướng nếu không hợp lệ
   useEffect(() => {
     if (isLoading) return;
-    
-  }, [isLoading, channel, member, router]);
-
+    if (!channel || !currentMember) {
+      router.push(`/servers/${params.serverId}`);
+    }
+  }, [isLoading, channel, members, router, params.serverId, currentMember] );
+  console.log(currentMember, "sssss")
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -40,7 +47,7 @@ const ChannelIdPage = () => {
       </div>
     );
   }
-  if (!channel || !member ) { // đã test có channel và member
+  if (!channel || !members ) { // đã test có channel và member
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-destructive">Không thể truy cập kênh này.</p>
@@ -49,7 +56,7 @@ const ChannelIdPage = () => {
   }
   const socketProps = {
     channelId: channel.id,
-    memberId: member.id,
+    memberId: currentMember?.id,
   };
   return (
     <div className="flex h-full flex-col bg-white dark:bg-[#313338]">
@@ -64,7 +71,7 @@ const ChannelIdPage = () => {
             type="channel"
             chatId={channel.id}
             name={channel.name}
-            member={member}
+            member={currentMember}
             apiUrl="rest/v1/messages"
             paramKey="channel"
             paramValue={channel.id}

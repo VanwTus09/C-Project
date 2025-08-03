@@ -5,7 +5,7 @@ import { Loader2, ServerCrash } from "lucide-react";
 
 import { ChatItem, ChatWelcome } from "@/components/chats";
 import { useChatQuery, useChatScroll } from "@/hooks";
-import { MemberWithProfile, MessageWithMemberWithProfile } from "@/models";
+import { Member, MessageWithMemberWithProfile } from "@/models";
 import { useChatRealtime } from "@/hooks/use-chat-realtime";
 import dayjs from "@/lib/dayjs";
 
@@ -13,7 +13,7 @@ interface ChatMessagesProps {
   type: "channel" | "conversation";
   chatId: string;
   name: string;
-  member?: MemberWithProfile;
+  member?: Member;
   apiUrl: string;
   paramKey: "channel" | "conversation";
   paramValue?: string;
@@ -61,7 +61,6 @@ export const ChatMessages = ({
     shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
     count: data?.pages[0]?.messages.length ?? 0,
   });
-
   if (status === "pending") {
     return (
       <div className="flex flex-1 flex-col items-center justify-center">
@@ -122,7 +121,7 @@ export const ChatMessages = ({
                 timestamp={
                   message.created_at && dayjs(message.created_at).isValid()
                     ? dayjs(message.created_at).fromNow()
-                    : "s"
+                    : ""
                 }
                 isUpdated={message.updated_at !== message.created_at}
                 paramValue={message.id}

@@ -2,7 +2,11 @@
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/chats";
 import { MediaRoom } from "@/components/media-room";
-import { useAuth, useConversation, useFirstMemberByServerIdIfMember,  } from "@/hooks";
+import {
+  useAuth,
+  useConversation,
+  useMembersByServerIdIfMember,
+} from "@/hooks";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,8 +16,10 @@ const MemberIdPage = () => {
   const video = searchParams.get("video");
   const router = useRouter();
   const { profile, isLoading: profileLoading } = useAuth();
-  const { member: currentMember, isLoading: memberLoading } =
-    useFirstMemberByServerIdIfMember(params.serverId);
+  const { members, isLoading: memberLoading } = useMembersByServerIdIfMember(
+    params.serverId
+  );
+  const currentMember = members?.find((m) => m.profile_id === profile?.id);
   const { conversation, isLoading: conversationLoading } = useConversation(
     currentMember?.id,
     params.memberId
@@ -48,7 +54,7 @@ const MemberIdPage = () => {
             serverId={params.serverId}
             name={otherMember?.profile.name}
             type="conversation"
-            imageUrl={otherMember?.profile.image_url}
+            image_url={otherMember?.profile.image_url}
           />
           {conversation && (
             <>

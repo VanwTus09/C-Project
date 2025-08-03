@@ -50,15 +50,30 @@ export const useServerStore = create<ServerStore>((set) => ({
   servers: [],
   setServers: (servers) => set({ servers }),
   fetchServers: async (profile_id: string) => {
-    const { data, error } = await supabase
-      .from("servers")
-      .select("id, name, image_url, profile_id, invite_code, created_at , updated_at")
-      .eq("profile_id", profile_id);
+  const { data, error } = await supabase
+    .from("members")
+    .select(`
+      server:server_id (
+        id, name, image_url, profile_id, invite_code, created_at, updated_at
+      )
+    `)
+    .eq("profile_id", profile_id);
 
-    if (!error && data) {
-      set({ servers: data.map(s => ({ id: s.id, name: s.name, imageUrl: s.image_url, invite_code:s.invite_code , updated_at:s.updated_at, created_at:s.created_at, profile_id:s.profile_id})) });
-    }
+  if (!error && data) {
+    const servers = data.map((e) => ({
+      id: e.server.id,
+      name: e.server.name,
+      image_url: e.server.image_url,
+      profile_id: e.server.profile_id,
+      invite_code: e.server.invite_code,
+      created_at: e.server.created_at,
+      updated_at: e.server.updated_at,
+    }));
+    set({ servers });
   }
+  console.log(data,"dataaaaaa")
+}
+
 }));
 interface ModalStore {
   type: ModalType | null;

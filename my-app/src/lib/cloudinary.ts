@@ -3,11 +3,11 @@
 
 import axios from "axios";
 
-export async function uploadToCloudinaryFromUrl(imageUrl: string): Promise<string | null> {
+export async function uploadToCloudinaryFromUrl(image_url: string): Promise<string | null> {
   const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
   const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
   const formData = new FormData();
-    formData.append("file", imageUrl);
+    formData.append("file", image_url);
     formData.append("upload_preset", UPLOAD_PRESET);
 
   try {

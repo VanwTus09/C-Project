@@ -7,14 +7,14 @@ import { useParams, useRouter } from "next/navigation";
 
 interface NavigationItemProps {
   id: string;
-  imageUrl: string;
+  image_url: string;
   name: string;
   priorityImageUrl: boolean;
 }
 
 export const NavigationItem = ({
   id,
-  imageUrl,
+  image_url,
   name,
   priorityImageUrl,
 }: NavigationItemProps) => {
@@ -45,12 +45,12 @@ export const NavigationItem = ({
               "bg-primary/10 text-primary rounded-[16px]"
           )}
         >
-          {imageUrl ? (
+          {image_url ? (
             <Image
               fill
               priority={!!priorityImageUrl}
               sizes="72px"
-              src={imageUrl}
+              src={image_url}
               alt="Channel"
             />
           ) : null}

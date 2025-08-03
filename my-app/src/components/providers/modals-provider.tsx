@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  CreateChannelModal,
   CreateServerModal,
   DeleteChannelModal,
   DeleteMessageModal,
   InviteModal,
+  LeaveServerModal,
   MembersModal,
   MessageFileModal,
 } from "@/components/modals";
@@ -28,6 +30,8 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       <InviteModal/>
       <MessageFileModal />
       <DeleteMessageModal />
+      <CreateChannelModal/>
+      <LeaveServerModal/>
     </>
   );
 };

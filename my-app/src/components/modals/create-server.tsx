@@ -92,14 +92,14 @@ export const CreateServerModal = () => {
       const { fetchServers } = useServerStore.getState();
       const profileId = profileData.id;
       const file = values.image as File;
-      const imageUrl = await uploadImage(file, user.id);
+      const image_url = await uploadImage(file, user.id);
       const invite_code = uuidv4();
 
       const { data: server, error: serverError } = await supabase
         .from("servers")
         .insert({
           name: values.name,
-          image_url: imageUrl,
+          image_url: image_url,
           invite_code: invite_code,
           profile_id: profileId,
         })

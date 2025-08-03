@@ -67,7 +67,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       console.warn("Đã là thành viên server");
       return server;
     }
-    const {  error: insertError } = await supabase
+    const {  data : inserted ,error: insertError } = await supabase
       .from("members")
       .insert({
         profile_id: profile_id,
@@ -80,6 +80,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       console.error("Lỗi khi thêm thành viên:", insertError);
       return;
     }
+    console.log("Insert thành công:", inserted);
 
       await mutate();
 
