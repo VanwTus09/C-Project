@@ -8,7 +8,7 @@ import {  SWRConfig } from "swr";
 export function SWRProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
-
+  const MILISECOND_PER_HOUR = 60 * 60 * 1000;
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setToken(data.session?.access_token ?? null);
@@ -43,9 +43,8 @@ export function SWRProvider({ children }: { children: React.ReactNode }) {
     <SWRConfig
       value={{
         fetcher,
-        revalidateIfStale: false,
         revalidateOnFocus: false,
-        revalidateOnReconnect: false,
+        dedupingInterval: MILISECOND_PER_HOUR,
         shouldRetryOnError: false,
       }}
     >

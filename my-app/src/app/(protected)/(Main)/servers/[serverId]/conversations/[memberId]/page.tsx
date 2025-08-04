@@ -4,11 +4,11 @@ import { ChatHeader, ChatInput, ChatMessages } from "@/components/chats";
 import { MediaRoom } from "@/components/media-room";
 import {
   useAuth,
-  useConversation,
   useMembersByServerIdIfMember,
 } from "@/hooks";
+import { useFetchConversation } from "@/hooks/use-fetch-conversation";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 const MemberIdPage = () => {
   const params = useParams<{
@@ -24,20 +24,27 @@ const MemberIdPage = () => {
     params.serverId
   );
   const currentMember = members?.find((m) => m.profile_id === profile?.id);
-  const { conversation, isLoading: conversationLoading } = useConversation(
-    params.member_one_id,
+  const { conversation, isLoading: conversationLoading } = useFetchConversation(
+    params.memberId , currentMember?.id
   );
   console.log(currentMember, "curreneeee");
-  const otherMember =
-    conversation?.member_one_id === currentMember?.id
-      ? conversation?.memberOne
-      : conversation?.memberTwo;
+  console.log(conversation, 'conversation')
+  const otherMember = useMemo(() => {
+    if (!conversation || !currentMember) return null;
+    return conversation.member_one_id === currentMember.id
+      ? conversation.memberTwo
+      : conversation.memberOne;
+  }, [conversation, currentMember]);
+  
+  console.log(conversation?.member_one_id,'quỷ')
+    console.log(conversation?.memberTwo,'quỷ cái 1')
+    console.log(typeof(otherMember),'chịu')
 
   useEffect(() => {
     if (profileLoading || memberLoading || conversationLoading) return;
     if (!profile) return router.replace("/");
     if (!currentMember) return router.replace("/");
-    // if (!conversation) return router.replace(`/servers/${params.serverId}`);
+    if (!conversation) return router.replace(`/servers/${params.serverId}`);
   }, [
     profileLoading,
     memberLoading,
@@ -88,6 +95,7 @@ const MemberIdPage = () => {
                     body={{
                       conversationId: conversation.id,
                     }}
+                    
                   />
                 </>
               )}

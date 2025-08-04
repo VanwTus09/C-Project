@@ -1,4 +1,5 @@
 'use client'
+
 import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/supabase";
@@ -6,7 +7,7 @@ import { MessageWithMemberWithProfile } from "@/models";
 
 interface ChatRealtimeProps {
   channelId: string,
-  queryKey?: string;
+  queryKey: unknown[];
   paramValue?: string;
   paramKey : "channel" | "conversation";
 }
@@ -24,24 +25,22 @@ export const useChatRealtime = ({
   paramKey
 }: ChatRealtimeProps): void => {
   const queryClient = useQueryClient();
-  const fetchFullMessage = useCallback(async (messageId:string) => {
-  const { data, error } = await supabase
-    .from("messages")
-    .select("*, member:member_id(*, profile:profile_id(*))")
-    .eq("id",messageId)
-    .maybeSingle();
 
-  if (error || !data) return null;
-  
+  const fetchFullMessage = useCallback(async (messageId: string) => {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*, member:member_id(*, profile:profile_id(*))")
+      .eq("id", messageId)
+      .maybeSingle();
 
-  return data as MessageWithMemberWithProfile;
-  
-  },[]);
+    if (error || !data) return null;
+    return data as MessageWithMemberWithProfile;
+  }, []);
+
   useEffect(() => {
-    if (!paramKey || !channelId) return;
     if (!queryKey || !paramKey || !channelId) return;
+
     const channelName = `realtime:messages:${paramKey}:${paramValue}`;
-    console.log(queryKey, 'khớp không')
     const channel = supabase
       .channel(channelName)
       .on<MessageWithMemberWithProfile>(
@@ -53,21 +52,23 @@ export const useChatRealtime = ({
           filter: `${paramKey}_id=eq.${paramValue}`,
         },
         async (payload) => {
-          const message = await fetchFullMessage(payload.new.id) ;
-          if(!message) return
-          queryClient.setQueryData<PaginatedMessages>(([queryKey]), (oldData) => {
+
+          const message = await fetchFullMessage(payload.new.id);
+          if (!message) return;
+
+          queryClient.setQueryData<PaginatedMessages>(queryKey, (oldData) => {
             if (!oldData) return oldData;
+
             const newPages = [...oldData.pages];
+            if (!newPages[0]) return oldData;
 
             newPages[0] = {
               ...newPages[0],
               messages: [message, ...newPages[0].messages],
             };
-            
-            return { ...oldData, pages: newPages};
-          });
-          queryClient.invalidateQueries({ queryKey: [queryKey] });
 
+            return { ...oldData, pages: newPages };
+          });
         }
       )
       .on<MessageWithMemberWithProfile>(
@@ -81,7 +82,7 @@ export const useChatRealtime = ({
         (payload) => {
           const message = payload.new;
 
-          queryClient.setQueryData<PaginatedMessages>([queryKey], (oldData) => {
+          queryClient.setQueryData<PaginatedMessages>(queryKey, (oldData) => {
             if (!oldData) return oldData;
 
             const updatedPages = oldData.pages.map((page) => ({
@@ -97,12 +98,13 @@ export const useChatRealtime = ({
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          console.log(" Subscribed to realtime:messages:", channelName);
+          console.log("✅ Subscribed to", channelName);
         }
       });
 
     return () => {
+      console.log("❌ Unsubscribed from", channelName);
       supabase.removeChannel(channel);
     };
-  }, [paramKey,queryClient, queryKey, paramValue , channelId, fetchFullMessage]);
+  }, [paramKey, queryClient, queryKey, paramValue, channelId, fetchFullMessage]);
 };

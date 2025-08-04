@@ -127,7 +127,6 @@ export const ChatItem = ({
       content: content,
     });
   }, [form, content]);
-
   const isAdmin = currentMember?.role === Role.ADMIN;
   const isModerator = currentMember?.role === Role.MODERATOR;
   const isOwner = currentMember?.id === member.id;

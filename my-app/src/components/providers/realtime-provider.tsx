@@ -23,7 +23,7 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
   const conversationId = params?.conversationId;
 
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
     const name = channelId
@@ -52,7 +52,7 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
 
     return () => {
       _channel.unsubscribe();
-      setIsConnected(true);
+      setIsConnected(false);
     };
   }, [channelId, conversationId]);
 

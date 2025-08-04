@@ -44,6 +44,7 @@ export const useMembersByServerIdIfMember = (
     },
     {}
   );
+  
 
   return {
     members,

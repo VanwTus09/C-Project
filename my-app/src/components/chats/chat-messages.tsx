@@ -39,7 +39,7 @@ export const ChatMessages = ({
   socketQuery,
   socketBody,
 }: ChatMessagesProps) => {
-  const queryKey = `chat:${chatId}`;
+const queryKey = ["chat", chatId];
   const chatRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =

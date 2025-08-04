@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/supabase";
 
 interface ChatQueryProps {
-  queryKey: string;
+  queryKey: unknown[];
   paramKey: "channel" | "conversation";
   paramValue?: string;
 }
@@ -28,7 +28,6 @@ export const useChatQuery = ({
       .range(from, to);
 
     if (error) throw new Error(error.message);
-    console.log(queryKey, 'hâhaa')
     return {
       messages: data ,
       nextCursor: (data?.length === PAGE_SIZE) ? to + 1 : undefined,
@@ -43,9 +42,9 @@ export const useChatQuery = ({
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({ // fetch error
-    queryKey:[queryKey],
-
-    queryFn: fetchMessages,
+    queryKey:(queryKey),
+    queryFn:fetchMessages,
+    refetchInterval: 10000,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     

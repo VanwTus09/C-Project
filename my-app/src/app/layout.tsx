@@ -40,17 +40,22 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        ><SWRProvider>
+        >
+          
           <RealtimeProvider>
+          <SWRProvider>
           <ModalProvider>
           
             
             <QueryProvider>
-              <AuthProvider><RealtimeProvider>{children}</RealtimeProvider></AuthProvider>
+              <AuthProvider>{children}</AuthProvider>
                 
             </QueryProvider>
           
-          </ModalProvider></RealtimeProvider></SWRProvider>
+          </ModalProvider>
+          </SWRProvider>
+          </RealtimeProvider>
+          
         </ThemeProvider>
       </body>
     </html>

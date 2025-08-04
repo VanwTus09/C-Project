@@ -5,8 +5,7 @@ import { MemberWithProfile, Role } from "@/models";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { UserAvatar } from "@/components/user-avatar";
-import { useConversation, useMembersByServerIdIfMember } from "@/hooks";
-import { supabase } from "@/lib/supabase/supabase";
+import { useAuth, useConversation, useMembersByServerIdIfMember } from "@/hooks";
 import { toast } from "sonner";
 
 interface ServerMemberProps {
@@ -18,43 +17,61 @@ const roleIconMap = {
   [Role.MODERATOR]: <ShieldCheck className="ml-2 h-4 w-4 text-indigo-500" />,
   [Role.ADMIN]: <ShieldAlert className="ml-2 h-4 w-4 text-rose-500" />,
 };
-
+// currentmember tính theo profile_id
 export const SidebarMember = ({ member }: ServerMemberProps) => {
   const params = useParams<{
-    memberId: string;
+    channelId: string;
     serverId: string;
-    member_one_id: string;
+    memberId:string;
   }>();
   const router = useRouter();
+  const {profile} = useAuth()
   const icon = roleIconMap[member.role];
-  const { conversation } = useConversation(params.memberId);
-  const { membersByProfileId } = useMembersByServerIdIfMember(params.serverId);
-  console.log(membersByProfileId,'abcd')
-  console.log(params.memberId, "ssasa"); //27c
+   const { getConversationByMembers, createConversation } = useConversation(params.serverId);
+  const { members } = useMembersByServerIdIfMember(params.serverId);
+  console.log(params, "params");
+  // console.log(server?.profile_id, 'id của current')
+  const memberList = Object.values(members)
+  const CurrentMember = memberList.find(
+  (member) => member.profile_id  === profile?.id
+);
 
-  const ClickMember = Object.entries(membersByProfileId).find(
-    ([id]) => id !== params.memberId
-  )?.[0];
-  console.log(ClickMember, "fa");
+  
+  console.log(profile, 'members có s ở sidebar')
+  console.log(member.id, "memberid"); //27c
+  
+
+  
   const handleClick = async () => {
-    if (conversation) {
-      router.push(`/servers/${params.serverId}/conversations/${member.id}`);
-    } else {
-      try {
-        const { error: ConversationError } = await supabase
-          .from("conversations")
-          .insert({
-            member_two_id: member.id, //đây là chính mình
-            member_one_id: ClickMember, // onclick dô thèn nào (lấy id member thằng đó)
-          });
-        if (ConversationError) throw ConversationError;
+    if(!CurrentMember) return
+    if(CurrentMember.id === member.id) return
+   try {
+      const existingConversation  = await getConversationByMembers(
+        CurrentMember.id,
+        member.id 
+      );
+      if(existingConversation) {
         router.push(`/servers/${params.serverId}/conversations/${member.id}`);
-      } catch (error) {
+      } else{
+          const newConversation = await createConversation(
+          CurrentMember.id,
+          member.id
+        );
+
+        if (newConversation) {
+          router.push(
+            `/servers/${params.serverId}/conversations/${newConversation.id}`,
+          );
+      }}
+    } 
+    catch (error) {
         const message =
           error instanceof Error ? error.message : "Something went wrong";
         toast.error(message);
       }
     }
+      {
+      
   };
 
   // chỗ ni nó nhận biết đc là profile của admin

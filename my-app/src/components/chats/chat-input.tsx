@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useDirectMessage, useMessage, useModal } from "@/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -14,7 +13,12 @@ interface ChatInputProps {
   type: "conversation" | "channel";
   name: string;
   apiUrl: string;
-  body: { channelId?: string;  conversationId?: string , memberId?: string , serverId?: string };
+  body: {
+    channelId?: string;
+    conversationId?: string;
+    memberId?: string;
+    serverId?: string;
+  };
 }
 
 const formSchema = z.object({
@@ -22,7 +26,6 @@ const formSchema = z.object({
 });
 
 export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
-  const router = useRouter();
   const { onOpen } = useModal();
   const { createMessage } = useMessage();
   const { createDirectMessage } = useDirectMessage();
@@ -34,8 +37,7 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
   });
 
   const isLoading = form.formState.isSubmitting;
-  
-  
+
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
     try {
       if (apiUrl === `/rest/v1/messages`) {
@@ -43,18 +45,16 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
           content: value.content,
           channelId: body.channelId,
           memberId: body.memberId,
-          
         });
       } else if (apiUrl === `/rest/v1/direct_messages`) {
         await createDirectMessage({
           content: value.content,
           memberId: body.memberId,
-          conversationId: body.conversationId, 
+          conversationId: body.conversationId,
         });
       }
 
-      form.reset();
-      router.refresh();
+      form.reset({ content: "" });
     } catch (error) {
       console.log(error);
     }
@@ -73,15 +73,17 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
                   <button
                     type="button"
                     className="absolute top-7 left-8 flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded-full bg-zinc-500 p-1 transition hover:bg-zinc-600 dark:bg-zinc-400 dark:hover:bg-zinc-300"
-                    onClick={()=> onOpen("messageFile",{body,apiUrl, })}
+                    onClick={() => onOpen("messageFile", { body, apiUrl })}
                   >
                     <Plus className="text-white dark:text-[#313338] hover:scale-115" />
                   </button>
                   <Input
                     {...field}
                     disabled={isLoading}
-                    placeholder={`Send message to ${type === "conversation" ? name : "#" + name}`}
-                    className="border-0 border-none bg-zinc-200/90 px-14 py-6 text-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-zinc-700/75 dark:text-zinc-200"
+                    placeholder={`Send message to ${
+                      type === "conversation" ? name : "#" + name
+                    }`}
+                    className="border-0  bg-zinc-200/90 px-14 py-6 text-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-zinc-700/75 dark:text-zinc-200"
                   />
                   <div className="absolute top-7 right-8">
                     <EmojiPicker

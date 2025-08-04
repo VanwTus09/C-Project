@@ -53,7 +53,7 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
     (server?.channels ??
     []).filter((channel: Channel) => channel.type === ChannelType.VIDEO);
   const members =
-    server?.members.filter((member: Member) => member.profile_id !== profile?.id);
+    (server?.members).filter((member: Member) => member.profile_id !== profile?.id);
 
   const role = server.members?.find(
     (member: Member) => member.profile_id === profile.id
