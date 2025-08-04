@@ -9,6 +9,7 @@ export const useMessage = () => {
   fileUrl,
   channelId,
   memberId,
+  
 }: {
   content?: string;
   fileUrl?: File | "";

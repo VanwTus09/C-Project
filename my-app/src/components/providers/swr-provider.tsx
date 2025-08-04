@@ -3,7 +3,7 @@
 import { axiosInstance } from "@/api";
 import { supabase } from "@/lib/supabase/supabase";
 import { useEffect, useState } from "react";
-import { SWRConfig } from "swr";
+import {  SWRConfig } from "swr";
 
 export function SWRProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
@@ -27,6 +27,7 @@ export function SWRProvider({ children }: { children: React.ReactNode }) {
           apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         },
       }
+      
     );
     return res.data[0];
   };

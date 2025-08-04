@@ -28,7 +28,7 @@ export const useChatQuery = ({
       .range(from, to);
 
     if (error) throw new Error(error.message);
-
+    console.log(queryKey, 'hâhaa')
     return {
       messages: data ,
       nextCursor: (data?.length === PAGE_SIZE) ? to + 1 : undefined,
@@ -44,6 +44,7 @@ export const useChatQuery = ({
     status,
   } = useInfiniteQuery({ // fetch error
     queryKey:[queryKey],
+
     queryFn: fetchMessages,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,

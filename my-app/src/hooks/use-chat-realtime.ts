@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/supabase";
 import { MessageWithMemberWithProfile } from "@/models";
@@ -24,7 +24,7 @@ export const useChatRealtime = ({
   paramKey
 }: ChatRealtimeProps): void => {
   const queryClient = useQueryClient();
-  const fetchFullMessage = async (messageId:string) => {
+  const fetchFullMessage = useCallback(async (messageId:string) => {
   const { data, error } = await supabase
     .from("messages")
     .select("*, member:member_id(*, profile:profile_id(*))")
@@ -32,13 +32,16 @@ export const useChatRealtime = ({
     .maybeSingle();
 
   if (error || !data) return null;
+  
+
   return data as MessageWithMemberWithProfile;
   
-};
+  },[]);
   useEffect(() => {
     if (!paramKey || !channelId) return;
     if (!queryKey || !paramKey || !channelId) return;
     const channelName = `realtime:messages:${paramKey}:${paramValue}`;
+    console.log(queryKey, 'khớp không')
     const channel = supabase
       .channel(channelName)
       .on<MessageWithMemberWithProfile>(
@@ -55,12 +58,16 @@ export const useChatRealtime = ({
           queryClient.setQueryData<PaginatedMessages>(([queryKey]), (oldData) => {
             if (!oldData) return oldData;
             const newPages = [...oldData.pages];
+
             newPages[0] = {
               ...newPages[0],
               messages: [message, ...newPages[0].messages],
             };
+            
             return { ...oldData, pages: newPages};
           });
+          queryClient.invalidateQueries({ queryKey: [queryKey] });
+
         }
       )
       .on<MessageWithMemberWithProfile>(
@@ -97,5 +104,5 @@ export const useChatRealtime = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [paramKey, queryClient, queryKey, paramValue , channelId]);
+  }, [paramKey,queryClient, queryKey, paramValue , channelId, fetchFullMessage]);
 };
