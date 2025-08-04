@@ -5,6 +5,9 @@ import { MemberWithProfile, Role } from "@/models";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { UserAvatar } from "@/components/user-avatar";
+import { useConversation, useMembersByServerIdIfMember } from "@/hooks";
+import { supabase } from "@/lib/supabase/supabase";
+import { toast } from "sonner";
 
 interface ServerMemberProps {
   member: MemberWithProfile;
@@ -17,22 +20,50 @@ const roleIconMap = {
 };
 
 export const SidebarMember = ({ member }: ServerMemberProps) => {
-  const params = useParams<{ memberId: string; serverId: string }>();
+  const params = useParams<{
+    memberId: string;
+    serverId: string;
+    member_one_id: string;
+  }>();
   const router = useRouter();
-
   const icon = roleIconMap[member.role];
+  const { conversation } = useConversation(params.memberId);
+  const { membersByProfileId } = useMembersByServerIdIfMember(params.serverId);
+  console.log(membersByProfileId,'abcd')
+  console.log(params.memberId, "ssasa"); //27c
 
-  const handleClick = () => {
-    router.push(`/servers/${params.serverId}/conversations/${member.id}`);
+  const ClickMember = Object.entries(membersByProfileId).find(
+    ([id]) => id !== params.memberId
+  )?.[0];
+  console.log(ClickMember, "fa");
+  const handleClick = async () => {
+    if (conversation) {
+      router.push(`/servers/${params.serverId}/conversations/${member.id}`);
+    } else {
+      try {
+        const { error: ConversationError } = await supabase
+          .from("conversations")
+          .insert({
+            member_two_id: member.id, //đây là chính mình
+            member_one_id: ClickMember, // onclick dô thèn nào (lấy id member thằng đó)
+          });
+        if (ConversationError) throw ConversationError;
+        router.push(`/servers/${params.serverId}/conversations/${member.id}`);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Something went wrong";
+        toast.error(message);
+      }
+    }
   };
-  console.log(member?.profile_id, "sidebarmemvern")
 
+  // chỗ ni nó nhận biết đc là profile của admin
   return (
     <button
       onClick={handleClick}
       className={cn(
         "group mb-1 flex w-full cursor-pointer items-center gap-x-2 rounded-md px-2 py-2 transition hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50",
-        params.memberId === member.id && "bg-zinc-700/20 dark:bg-zinc-700",
+        params.memberId === member.id && "bg-zinc-700/20 dark:bg-zinc-700"
       )}
     >
       <UserAvatar
@@ -43,7 +74,7 @@ export const SidebarMember = ({ member }: ServerMemberProps) => {
         className={cn(
           "text-sm font-semibold text-zinc-500 transition group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300",
           params.memberId === member.id &&
-            "text-primary dark:text-zinc-200 dark:group-hover:text-white",
+            "text-primary dark:text-zinc-200 dark:group-hover:text-white"
         )}
       >
         {member.profile.name}

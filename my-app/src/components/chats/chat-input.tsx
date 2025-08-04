@@ -48,8 +48,8 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
       } else if (apiUrl === `/rest/v1/direct_messages`) {
         await createDirectMessage({
           content: value.content,
-          conversationId: body.conversationId, 
           memberId: body.memberId,
+          conversationId: body.conversationId, 
         });
       }
 

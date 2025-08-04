@@ -14,10 +14,7 @@ const InviteCodePage = () => {
   const hasJoinedRef = useRef(false);
   const { profile, isLoading } = useAuth();
   const { joinServer } = useServers();
-  console.log("invite_code:", params.invite_code);
-console.log("profile.id:", profile?.id);
-console.log("params:", params);
-console.log("invite_code:", params?.invite_code);
+ 
 
 
   // Tạo biến để giữ server sau khi profile sẵn sàng

@@ -94,7 +94,7 @@ export const ChatItem = ({
   });
 
   const isLoading = form.formState.isSubmitting;
-  const isDirectMessage = !!socketBody.conversationId;
+  const isDirectMessage = !!socketBody?.conversationId;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (!values.content || values.content.trim() === "") return;
@@ -111,6 +111,7 @@ export const ChatItem = ({
           directMessageId: paramValue,
           content: values.content,
           conversationId: socketBody.conversationId,
+          memberId : member?.id,
         });
       }
 

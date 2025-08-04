@@ -23,7 +23,6 @@ const ChannelIdPage = () => {
   const { members , isLoading: memberLoading , membersByProfileId } = useMembersByServerIdIfMember(
    params.serverId
   );
-  console.log('member mới lấy 1 đứa ', members )
   const isLoading = profileLoading || channelLoading || memberLoading;
 // Lấy member hiện tại dựa theo profile.id
 const currentMember: Member | undefined = useMemo(() => {
@@ -37,7 +36,6 @@ const currentMember: Member | undefined = useMemo(() => {
       router.push(`/servers/${params.serverId}`);
     }
   }, [isLoading, channel, members, router, params.serverId, currentMember] );
-  console.log(currentMember, "sssss")
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">

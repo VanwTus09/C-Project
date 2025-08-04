@@ -46,7 +46,7 @@ export const SidebarHeader = ({
           {isAdmin && (
             <DropdownMenuItem
             
-              onClick={() => {onOpen("invite", { server }); console.log("click button")}}
+              onClick={() => {onOpen("invite", { server })}}
               
               className="cursor-pointer px-3 py-2 text-sm text-indigo-600 dark:text-indigo-400"
             >

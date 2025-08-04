@@ -58,7 +58,6 @@ export const ServerSidebar = ({ serverId }: { serverId: string }) => {
   const role = server.members?.find(
     (member: Member) => member.profile_id === profile.id
   )?.role;
-  console.log(members)
 
   return (
     <div className="text-primary flex h-full w-full flex-col bg-[#dbdde2] dark:bg-[#2B2D31] text-xl">

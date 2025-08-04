@@ -11,7 +11,11 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 const MemberIdPage = () => {
-  const params = useParams<{ memberId: string; serverId: string }>();
+  const params = useParams<{
+    memberId: string;
+    serverId: string;
+    member_one_id: string;
+  }>();
   const searchParams = useSearchParams();
   const video = searchParams.get("video");
   const router = useRouter();
@@ -21,20 +25,19 @@ const MemberIdPage = () => {
   );
   const currentMember = members?.find((m) => m.profile_id === profile?.id);
   const { conversation, isLoading: conversationLoading } = useConversation(
-    currentMember?.id,
-    params.memberId
+    params.member_one_id,
   );
-
+  console.log(currentMember, "curreneeee");
   const otherMember =
-    conversation?.memberOne.profile_id === profile?.id
-      ? conversation?.memberTwo
-      : conversation?.memberOne;
+    conversation?.member_one_id === currentMember?.id
+      ? conversation?.memberOne
+      : conversation?.memberTwo;
 
   useEffect(() => {
     if (profileLoading || memberLoading || conversationLoading) return;
     if (!profile) return router.replace("/");
     if (!currentMember) return router.replace("/");
-    if (!conversation) return router.replace(`/servers/${params.serverId}`);
+    // if (!conversation) return router.replace(`/servers/${params.serverId}`);
   }, [
     profileLoading,
     memberLoading,

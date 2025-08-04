@@ -16,7 +16,6 @@ export const Navigation = () => {
 
   const servers = useServerStore((state) => state.servers);
   const fetchServers = useServerStore((state) => state.fetchServers);
-  console.log("SERVERS in Navigation:", servers);
 
   useEffect(() => {
     if (!profileLoading && profile?.id) {

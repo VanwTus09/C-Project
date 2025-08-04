@@ -4,11 +4,10 @@ import { Conversation } from "@/models";
 import useSWR, { SWRConfiguration } from "swr";
 
 export const useConversation = (
-  memberOneId: string | undefined,
-  memberTwoId: string,
+  member_one_id: string , // đây là thằng chính (sender)
   options?: Partial<SWRConfiguration<Conversation>>,
 ) => {
-  const shouldFetch = !!memberOneId && !!memberTwoId;
+  const shouldFetch = !!member_one_id ;
 
   const {
     data: conversation,
@@ -17,7 +16,7 @@ export const useConversation = (
     mutate,
   } = useSWR<Conversation>(
     shouldFetch
-      ? `/rest/v1/conversations/${memberOneId}/${memberTwoId}`
+      ? `/rest/v1/conversations?member_one_id=eq.${member_one_id}`
       : null,
     {
       ...options,

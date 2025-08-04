@@ -60,18 +60,17 @@ export const useServerStore = create<ServerStore>((set) => ({
     .eq("profile_id", profile_id);
 
   if (!error && data) {
-    const servers = data.map((e) => ({
-      id: e.server.id,
-      name: e.server.name,
-      image_url: e.server.image_url,
-      profile_id: e.server.profile_id,
-      invite_code: e.server.invite_code,
-      created_at: e.server.created_at,
-      updated_at: e.server.updated_at,
-    }));
+    const servers = data.map((e) => e.server
+      // id: e.server.id,
+      // name: e.server.name,
+      // image_url: e.server.image_url,
+      // profile_id: e.server.profile_id,
+      // invite_code: e.server.invite_code,
+      // created_at: e.server.created_at,
+      // updated_at: e.server.updated_at,
+    ).flat();
     set({ servers });
   }
-  console.log(data,"dataaaaaa")
 }
 
 }));
