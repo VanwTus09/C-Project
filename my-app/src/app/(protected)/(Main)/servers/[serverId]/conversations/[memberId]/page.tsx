@@ -35,10 +35,12 @@ const MemberIdPage = () => {
       ? conversation.memberTwo
       : conversation.memberOne;
   }, [conversation, currentMember]);
+  const DmProps = {
+    memberId : currentMember?.id,
+    conversationId : conversation?.id
+  }
   
-  console.log(conversation?.member_one_id,'quỷ')
-    console.log(conversation?.memberTwo,'quỷ cái 1')
-    console.log(typeof(otherMember),'chịu')
+ 
 
   useEffect(() => {
     if (profileLoading || memberLoading || conversationLoading) return;
@@ -58,7 +60,7 @@ const MemberIdPage = () => {
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-[#313338]">
-      {otherMember && (
+      {otherMember && conversation && (
         <>
           <ChatHeader
             serverId={params.serverId}
@@ -76,26 +78,19 @@ const MemberIdPage = () => {
                   <ChatMessages
                     type="conversation"
                     chatId={conversation?.id}
-                    name={otherMember.profile.name}
+                    name={otherMember?.profile.name}
                     member={currentMember}
                     apiUrl="/rest/v1/direct_messages"
                     paramKey="conversation"
-                    paramValue={conversation.id}
-                    socketQuery={{
-                      conversationId: conversation.id,
-                    }}
-                    socketBody={{
-                      conversationId: conversation.id,
-                    }}
+                    paramValue={conversation?.id}
+                    socketQuery={DmProps}
+                    socketBody={DmProps}
                   />
                   <ChatInput
                     type="conversation"
                     name={otherMember.profile.name}
-                    apiUrl="/rest/v1/messages"
-                    body={{
-                      conversationId: conversation.id,
-                    }}
-                    
+                    apiUrl="/rest/v1/direct_messages"
+                    body={DmProps}
                   />
                 </>
               )}

@@ -1,9 +1,8 @@
 "use client";
 
 import { Badge } from "./ui/badge";
-import { useRealtime } from "./providers/realtime-provider";
 const SupabaseIndicator = () => {
-  const { isConnected } = useRealtime();
+  const  isConnected  = true;
   if (!isConnected)
     return (
       <Badge variant="outline" className="border-none bg-yellow-600 text-white">

@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabase/supabase";
 import { axiosInstance } from "@/api/axiosIntance";
+import { toast } from "sonner";
 
 export const useDirectMessage = () => {
   const createDirectMessage = async ({
@@ -12,14 +13,14 @@ export const useDirectMessage = () => {
   }: {
     content?: string;
     fileUrl?: File | "";
-    memberId?: string;         // sender
+    memberId?: string;         
     conversationId?: string;
   }) => {
     try {
       if (!memberId || !conversationId) return;
 
       await supabase.from("direct_messages").insert({
-        content: content || "",
+        content: content,
         file_url: fileUrl || "",
         member_id: memberId,
         conversation_id: conversationId,
@@ -27,6 +28,7 @@ export const useDirectMessage = () => {
     } catch (error) {
       console.error("Create DM error:", error);
     }
+    toast('insert thành công')
   };
 
   const editDirectMessage = async ({

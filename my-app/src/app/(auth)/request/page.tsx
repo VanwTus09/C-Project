@@ -40,7 +40,14 @@ export default function AuthRequest() {
     checkAndRedirect();
   }, [profile, supabase, router]);
 
-  if (loading) return null;
+  if (loading) {
+  return (
+    <div className="w-full h-screen flex items-center justify-center">
+      <span className="text-sm text-muted-foreground">Đang tải dữ liệu...</span>
+    </div>
+  );
+}
+
 
   return (
     <>

@@ -60,7 +60,7 @@ const currentMember: Member | undefined = useMemo(() => {
     <div className="flex h-full flex-col bg-white dark:bg-[#313338]">
       <ChatHeader
         type="channel"
-        serverId={channel?.serverId}
+        serverId={params.serverId}
         name={channel?.name}
       />
       {channel.type === ChannelType.TEXT && (

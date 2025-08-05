@@ -25,22 +25,29 @@ export const useChatRealtime = ({
   paramKey
 }: ChatRealtimeProps): void => {
   const queryClient = useQueryClient();
-
+  const table = paramKey === "channel" ? "messages" : "direct_messages";
   const fetchFullMessage = useCallback(async (messageId: string) => {
     const { data, error } = await supabase
-      .from("messages")
-      .select("*, member:member_id(*, profile:profile_id(*))")
+      .from(table)
+      .select(`
+  *,
+  member:member_id (
+    *,
+    profile:profile_id (*)
+  )
+`)
+
       .eq("id", messageId)
       .maybeSingle();
 
     if (error || !data) return null;
     return data as MessageWithMemberWithProfile;
-  }, []);
+  }, [table]);
 
   useEffect(() => {
     if (!queryKey || !paramKey || !channelId) return;
-
-    const channelName = `realtime:messages:${paramKey}:${paramValue}`;
+    
+    const channelName = `realtime:${table}:${paramKey}:${paramValue}`;
     const channel = supabase
       .channel(channelName)
       .on<MessageWithMemberWithProfile>(
@@ -48,20 +55,22 @@ export const useChatRealtime = ({
         {
           event: "INSERT",
           schema: "public",
-          table: "messages",
+          table: table,
           filter: `${paramKey}_id=eq.${paramValue}`,
         },
         async (payload) => {
 
           const message = await fetchFullMessage(payload.new.id);
           if (!message) return;
+          
+
 
           queryClient.setQueryData<PaginatedMessages>(queryKey, (oldData) => {
             if (!oldData) return oldData;
 
             const newPages = [...oldData.pages];
             if (!newPages[0]) return oldData;
-
+            if (newPages[0].messages.some(m => m.id === message.id)) return oldData; // tránh trùng
             newPages[0] = {
               ...newPages[0],
               messages: [message, ...newPages[0].messages],
@@ -71,31 +80,31 @@ export const useChatRealtime = ({
           });
         }
       )
-      .on<MessageWithMemberWithProfile>(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `${paramKey}_id=eq.${paramValue}`,
-        },
-        (payload) => {
-          const message = payload.new;
+      // .on<MessageWithMemberWithProfile>(
+      //   "postgres_changes",
+      //   {
+      //     event: "UPDATE",
+      //     schema: "public",
+      //     table: "messages",
+      //     filter: `${paramKey}_id=eq.${paramValue}`,
+      //   },
+      //   (payload) => {
+      //     const message = payload.new;
 
-          queryClient.setQueryData<PaginatedMessages>(queryKey, (oldData) => {
-            if (!oldData) return oldData;
+      //     queryClient.setQueryData<PaginatedMessages>(queryKey, (oldData) => {
+      //       if (!oldData) return oldData;
 
-            const updatedPages = oldData.pages.map((page) => ({
-              ...page,
-              messages: page.messages.map((item) =>
-                item.id === message.id ? message : item
-              ),
-            }));
+      //       const updatedPages = oldData.pages.map((page) => ({
+      //         ...page,
+      //         messages: page.messages.map((item) =>
+      //           item.id === message.id ? message : item
+      //         ),
+      //       }));
 
-            return { ...oldData, pages: updatedPages };
-          });
-        }
-      )
+      //       return { ...oldData, pages: updatedPages };
+      //     });
+      //   }
+      // )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           console.log("✅ Subscribed to", channelName);
@@ -106,5 +115,5 @@ export const useChatRealtime = ({
       console.log("❌ Unsubscribed from", channelName);
       supabase.removeChannel(channel);
     };
-  }, [paramKey, queryClient, queryKey, paramValue, channelId, fetchFullMessage]);
+  }, [paramKey, queryClient, queryKey, paramValue, channelId, fetchFullMessage, table]);
 };

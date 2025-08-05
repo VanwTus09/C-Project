@@ -22,7 +22,7 @@ interface ChatInputProps {
 }
 
 const formSchema = z.object({
-  content: z.string().min(1),
+  content: z.string().trim().min(1, "message cannot be empty"),
 });
 
 export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
@@ -56,8 +56,10 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
 
       form.reset({ content: "" });
     } catch (error) {
-      console.log(error);
+      console.log ("Failed to send messages",error);
     }
+    console.log("chatinput", value )
+    console.log("body của chatinput ", body)
   };
 
   return (

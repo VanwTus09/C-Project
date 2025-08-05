@@ -22,7 +22,7 @@ const ServerIdLayout = ({ children }: { children: React.ReactNode }) => {
     return <div>...Loading </div>;
   return (
     <div className="h-full">
-      <div className="fixed inset-y-0 z-20 h-full w-60 flex-col flex">
+      <div className="fixed hidden inset-y-0  h-full w-60 flex-col md:flex">
         <ServerSidebar serverId={serverId} />
       </div>
       <main className="h-full md:pl-60">{children}</main>

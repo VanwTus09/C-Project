@@ -10,6 +10,7 @@ import {
 import { Menu } from "lucide-react";
 import { ServerSidebar } from "./Sidebar";
 export const MobileToggle = ({ serverId }: { serverId: string }) => {
+  console.log(serverId, "mobile toogle")
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -26,10 +27,12 @@ export const MobileToggle = ({ serverId }: { serverId: string }) => {
         <SheetDescription className="sr-only">
           Navigation mobile menu toggle
         </SheetDescription>
-        <div className="w-[72px]">
+        <div className="w-[100px]">
           <Navigation />
         </div>
-        <ServerSidebar  serverId={serverId} />
+        <div className="flex-1 bg-red-100">
+        <ServerSidebar serverId={serverId} />
+         </div>
       </SheetContent>
     </Sheet>
   );

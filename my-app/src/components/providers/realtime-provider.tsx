@@ -29,7 +29,7 @@ export const RealtimeProvider = ({ children }: { children: React.ReactNode }) =>
     const name = channelId
       ? `realtime:messages:channel:${channelId}`
       : conversationId
-      ? `realtime:messages:conversation:${conversationId}`
+      ? `realtime:direct_messages:conversation:${conversationId}`
       : null;
 
     if (!name) return;

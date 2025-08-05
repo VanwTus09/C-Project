@@ -19,10 +19,16 @@ export const useChatQuery = ({
   const fetchMessages = async ({ pageParam = 0 }) => {
     const from = pageParam;
     const to = pageParam + PAGE_SIZE - 1;
-
+    const table = paramKey === "channel" ? "messages" : "direct_messages";
     const { data, error } = await supabase
-      .from("messages")
-      .select("*, member:member_id(*, profile:profile_id(*))")
+      .from(table)
+      .select(`
+  *,
+  member:member_id (
+    *,
+    profile:profile_id (*)
+  )
+`)
       .eq(`${paramKey}_id`, paramValue)
       .order("created_at", { ascending: false })
       .range(from, to);
@@ -42,9 +48,8 @@ export const useChatQuery = ({
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({ // fetch error
-    queryKey:(queryKey),
+    queryKey:queryKey,
     queryFn:fetchMessages,
-    refetchInterval: 10000,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     
