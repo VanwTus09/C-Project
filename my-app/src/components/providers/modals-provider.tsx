@@ -11,6 +11,7 @@ import {
   MessageFileModal,
 } from "@/components/modals";
 import { useEffect, useState } from "react";
+import { DeleteServerModal } from "../modals/delete-server-modal";
 
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -32,6 +33,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       <DeleteMessageModal />
       <CreateChannelModal/>
       <LeaveServerModal/>
+      <DeleteServerModal/>
     </>
   );
 };

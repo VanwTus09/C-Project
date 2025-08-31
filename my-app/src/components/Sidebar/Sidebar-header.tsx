@@ -45,16 +45,14 @@ export const SidebarHeader = ({
         <DropdownMenuContent className="w-56 space-y-[2px] text-xl font-medium text-black dark:text-neutral-400">
           {isAdmin && (
             <DropdownMenuItem
-            
-              onClick={() => {onOpen("invite", { server })}}
-              
+              onClick={() => {
+                onOpen("invite", { server });
+              }}
               className="cursor-pointer px-3 py-2 text-sm text-indigo-600 dark:text-indigo-400"
             >
               Invite People
               <UserPlus className="ml-auto h-4 w-4" />
-              
             </DropdownMenuItem>
-            
           )}
           {isAdmin && (
             <DropdownMenuItem
@@ -86,15 +84,19 @@ export const SidebarHeader = ({
             </DropdownMenuItem>
           )}
           {isModerator && <DropdownMenuSeparator />}
-          {isAdmin && (
-            <DropdownMenuItem
-              onClick={() => onOpen("deleteServer", { server })}
-              className="cursor-pointer px-3 py-2 text-sm text-rose-500"
-            >
-              Delete Server
-              <Trash className="ml-auto h-4 w-4" />
-            </DropdownMenuItem>
-          )}
+         {isAdmin && (
+  <DropdownMenuItem
+    onClick={() => {
+      console.log("Clicked Delete Server!", server); // <-- check xem server có đúng
+      onOpen("deleteServer", { server });
+    }}
+    className="cursor-pointer px-3 py-2 text-sm text-rose-500 hover:bg-red-200"
+  >
+    Delete Server
+    <Trash className="ml-auto h-4 w-4" />
+  </DropdownMenuItem>
+)}
+
           {!isAdmin && (
             <DropdownMenuItem
               onClick={() => onOpen("leaveServer", { server })}

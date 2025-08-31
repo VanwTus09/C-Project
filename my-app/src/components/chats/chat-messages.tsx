@@ -50,6 +50,7 @@ const queryKey = ["chat", chatId];
     });
   useChatRealtime({
     channelId: chatId,
+    conversationId :chatId,
     queryKey,
     paramKey,
     paramValue,

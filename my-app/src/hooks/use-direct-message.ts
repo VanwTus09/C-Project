@@ -1,7 +1,6 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/supabase";
-import { axiosInstance } from "@/api/axiosIntance";
 import { toast } from "sonner";
 
 export const useDirectMessage = () => {
@@ -13,7 +12,7 @@ export const useDirectMessage = () => {
   }: {
     content?: string;
     fileUrl?: File | "";
-    memberId?: string;         
+    memberId?: string;
     conversationId?: string;
   }) => {
     try {
@@ -25,10 +24,12 @@ export const useDirectMessage = () => {
         member_id: memberId,
         conversation_id: conversationId,
       });
+
+      toast("Insert thành công");
     } catch (error) {
       console.error("Create DM error:", error);
+      toast.error("Insert thất bại");
     }
-    toast('insert thành công')
   };
 
   const editDirectMessage = async ({
@@ -40,36 +41,42 @@ export const useDirectMessage = () => {
     directMessageId: string;
     content: string;
     conversationId?: string;
-    memberId: string;
+    memberId?: string;
   }) => {
-    if (!content || !conversationId || !memberId) return;
+    if (!directMessageId || !memberId ||!conversationId) return;
 
     try {
-      await axiosInstance.patch(`/rest/v1/direct_messages/${directMessageId}`, {
-        content,
-        conversationId,
-        memberId,
-      });
+      const { data, error } = await supabase
+        .from("direct_messages") // sửa đúng tên bảng
+        .update({ content, updated_at: new Date().toISOString() })
+        .eq("id", directMessageId)
+        .single();
+
+      if (error) throw error;
+      toast("Update thành công");
+      return data;
     } catch (error) {
-      console.log("Edit DM error:", error);
+      console.error("Edit DM error:", error);
+      toast.error("Update thất bại");
     }
   };
 
-  const deleteDirectMessage = async ({
-    apiUrl,
+const deleteDirectMessage = async ({
+    directMessageId,
     conversationId,
   }: {
-    apiUrl: string;
+    directMessageId: string;
     conversationId?: string;
   }) => {
-    if (!conversationId) return;
+    if (!conversationId ){
+      console.warn("không tìm thấy",conversationId)
+      return;
+    } 
 
     try {
-      await axiosInstance.delete(apiUrl, {
-        params: { conversationId },
-      });
+      await supabase.from("messages").delete().eq("id", directMessageId).select()
     } catch (error) {
-      console.log("Delete DM error:", error);
+      console.log(error);
     }
   };
 

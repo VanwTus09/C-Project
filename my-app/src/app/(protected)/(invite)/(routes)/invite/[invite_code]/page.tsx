@@ -1,5 +1,6 @@
 "use client";
 
+import { useLoading } from "@/components/providers";
 import { useAuth, useServerByInviteCodeIfMember, useServers } from "@/hooks";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -14,19 +15,16 @@ const InviteCodePage = () => {
   const hasJoinedRef = useRef(false);
   const { profile, isLoading } = useAuth();
   const { joinServer } = useServers();
- 
-
+  const { showLoading, hideLoading } = useLoading();
 
   // Tạo biến để giữ server sau khi profile sẵn sàng
   const [inviteCodeReady, setInviteCodeReady] = useState(false);
 
-  const {
-    server: existingServer,
-    isLoading: existingServerLoading,
-  } = useServerByInviteCodeIfMember(
-    inviteCodeReady ? params.invite_code : "",
-    inviteCodeReady ? profile?.id : ""
-  );
+  const { server: existingServer, isLoading: existingServerLoading } =
+    useServerByInviteCodeIfMember(
+      inviteCodeReady ? params.invite_code : "",
+      inviteCodeReady ? profile?.id : ""
+    );
 
   // Chờ profile và invite_code sẵn sàng rồi mới cho phép gọi API
   useEffect(() => {
@@ -37,7 +35,11 @@ const InviteCodePage = () => {
 
   // Logic xử lý tham gia server
   useEffect(() => {
-    if (isLoading || existingServerLoading || !inviteCodeReady) return;
+    if (isLoading || existingServerLoading || !inviteCodeReady) {
+      showLoading();
+      return;
+    }
+    hideLoading();
     if (!profile) return router.replace("/");
     if (!params.invite_code) return router.replace("/");
 
@@ -64,6 +66,8 @@ const InviteCodePage = () => {
     existingServer,
     joinServer,
     inviteCodeReady,
+    showLoading,
+    hideLoading,
   ]);
 
   return null;

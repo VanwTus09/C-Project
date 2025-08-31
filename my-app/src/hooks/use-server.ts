@@ -112,6 +112,7 @@ export const useServers = (options?: Partial<SWRConfiguration<Server[]>>) => {
       console.log(error);
     }
   };
+  
 
   return {
     servers,

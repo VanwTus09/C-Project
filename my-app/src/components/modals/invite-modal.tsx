@@ -55,7 +55,7 @@ export const InviteModal = () => {
   };
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
-      <DialogContent className="overflow-hidden bg-white p-0 text-black">
+      <DialogContent className="overflow-hidden bg-white p-0 text-gray-400">
         <DialogHeader className="px-6 pt-8">
           <DialogTitle className="text-center text-2xl font-bold">
             Invite Friends
@@ -68,7 +68,7 @@ export const InviteModal = () => {
           <div className="mt-2 flex items-center gap-x-2">
             <Input
               disabled={isLoading}
-              className="border-0 bg-zinc-300/50 text-black focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="border-0 bg-zinc-300/50 text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0"
               value={inviteUrl}
               readOnly
             />

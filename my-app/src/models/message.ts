@@ -9,5 +9,6 @@ export interface Message extends ApiResponse {
 
 export interface MessageWithMemberWithProfile extends Message {
   channel_id: string;
+  conversation_id : string,
   member: MemberWithProfile;
 }

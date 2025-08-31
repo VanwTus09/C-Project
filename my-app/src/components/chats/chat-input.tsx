@@ -58,8 +58,8 @@ export const ChatInput = ({ type, name, apiUrl, body }: ChatInputProps) => {
     } catch (error) {
       console.log ("Failed to send messages",error);
     }
-    console.log("chatinput", value )
-    console.log("body của chatinput ", body)
+    // console.log("chatinput", value )
+    // console.log("body của chatinput ", body)
   };
 
   return (

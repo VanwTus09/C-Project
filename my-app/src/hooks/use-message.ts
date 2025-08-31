@@ -1,6 +1,4 @@
 "use client";
-
-import { axiosInstance } from "@/api/axiosIntance";
 import { supabase } from "@/lib/supabase/supabase";
 
 export const useMessage = () => {
@@ -32,49 +30,50 @@ export const useMessage = () => {
   }
 };
   const editMessage = async ({
-    messageId,
-    content,
-    channelId,
-    memberId,
-    serverId
-  }: {
-    messageId: string;
-    content: string;
-    channelId?: string;
-    memberId?: string;
-    serverId?: string
-  }) => {
-    if (content === "" || !channelId || !memberId) return;
-    try {
-      await axiosInstance.patch(`/rest/v1/messages/${messageId}`, {
-        content,
-        channelId,
-        memberId,
-        serverId
-      });
-    } catch (error) {
-      console.log(error);
+  messageId,
+  content,
+  channelId,
+  serverId,
+}: {
+  messageId: string;
+  content: string;
+  channelId?: string;
+  serverId?: string;
+}) => {
+  if (!channelId ){
+     console.warn("⚠️ Missing channelId or serverId", { channelId, serverId });return;
+  }
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .update({ content, updated_at: new Date().toISOString() })
+      .eq("id", messageId)
+      .select()
+    if (error) {
+     
+      throw error;
     }
-  };
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
   const deleteMessage = async ({
-    apiUrl,
+    messageId,
     channelId,
-    memberId,
   }: {
-    apiUrl: string;
+    messageId: string;
     channelId?: string;
-    memberId?: string;
   }) => {
-    if (!channelId || !memberId) return;
+    if (!channelId ){
+      console.warn("không tìm thấy",channelId)
+      return;
+    } 
 
     try {
-      await axiosInstance.delete(`${apiUrl}`, {
-        params: {
-          channelId,
-          memberId,
-        },
-      });
+      await supabase.from("messages").delete().eq("id", messageId).select()
     } catch (error) {
       console.log(error);
     }

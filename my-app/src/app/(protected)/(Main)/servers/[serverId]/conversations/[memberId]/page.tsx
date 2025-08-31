@@ -2,6 +2,7 @@
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/chats";
 import { MediaRoom } from "@/components/media-room";
+import { useLoading } from "@/components/providers";
 import {
   useAuth,
   useMembersByServerIdIfMember,
@@ -23,12 +24,13 @@ const MemberIdPage = () => {
   const { members, isLoading: memberLoading } = useMembersByServerIdIfMember(
     params.serverId
   );
+  const {showLoading, hideLoading} = useLoading()
   const currentMember = members?.find((m) => m.profile_id === profile?.id);
   const { conversation, isLoading: conversationLoading } = useFetchConversation(
     params.memberId , currentMember?.id
   );
-  console.log(currentMember, "curreneeee");
-  console.log(conversation, 'conversation')
+  // console.log(currentMember, "curreneeee");
+  // console.log(conversation, 'conversation')
   const otherMember = useMemo(() => {
     if (!conversation || !currentMember) return null;
     return conversation.member_one_id === currentMember.id
@@ -43,7 +45,10 @@ const MemberIdPage = () => {
  
 
   useEffect(() => {
-    if (profileLoading || memberLoading || conversationLoading) return;
+    if (profileLoading || memberLoading || conversationLoading){
+      showLoading()
+      return;
+    } hideLoading()
     if (!profile) return router.replace("/");
     if (!currentMember) return router.replace("/");
     if (!conversation) return router.replace(`/servers/${params.serverId}`);
@@ -56,6 +61,8 @@ const MemberIdPage = () => {
     currentMember,
     conversation,
     params.serverId,
+    showLoading,
+    hideLoading,
   ]);
 
   return (

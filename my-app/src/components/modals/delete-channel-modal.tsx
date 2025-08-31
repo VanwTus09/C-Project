@@ -20,6 +20,7 @@ export const DeleteChannelModal = () => {
 
   const isModalOpen = isOpen && type === "deleteChannel";
   const { server, channel } = data;
+
   const { deleteChannel } = useChannel(server?.id as string);
 
   const handleConfirm = async () => {

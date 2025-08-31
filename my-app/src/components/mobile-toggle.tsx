@@ -10,7 +10,6 @@ import {
 import { Menu } from "lucide-react";
 import { ServerSidebar } from "./Sidebar";
 export const MobileToggle = ({ serverId }: { serverId: string }) => {
-  console.log(serverId, "mobile toogle")
   return (
     <Sheet>
       <SheetTrigger asChild>

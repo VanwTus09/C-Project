@@ -10,33 +10,37 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDirectMessage, useMessage, useModal } from "@/hooks";
+// import { useParams } from "next/navigation";
 import { useState } from "react";
 
 export const DeleteMessageModal = () => {
+  // const params = useParams()
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen, onClose, type, data } = useModal();
+  const socketBody = data?.body;
+  const paramValue = data?.apiUrl?.split("/").pop();
+
   const { deleteMessage } = useMessage();
   const { deleteDirectMessage } = useDirectMessage();
 
   const isModalOpen = isOpen && type === "deleteMessage";
-  const { apiUrl, query } = data;
-
+  const isDirectMessage = !!socketBody?.conversationId;
   const handleConfirm = async () => {
     try {
       setIsLoading(true);
-
-      if (!apiUrl || !query) return;
-
-      if (apiUrl.includes(`/rest/v1/messages`)) {
+      if (!paramValue) {
+        console.warn("pramvalue null", paramValue);
+        return; // check id hợp lệ
+      }
+      if (!isDirectMessage) {
         await deleteMessage({
-          apiUrl,
-          channelId: query.channelId,
-          
+          messageId: paramValue,
+          channelId: socketBody?.channelId,
         });
-      } else if (apiUrl.includes(`/rest/v1/direct_messages`)) {
+      } else {
         await deleteDirectMessage({
-          apiUrl,
-          conversationId: query.conversationId,
+          directMessageId: paramValue,
+          conversationId: socketBody?.conversationId,
         });
       }
 
@@ -65,7 +69,7 @@ export const DeleteMessageModal = () => {
             <Button
               disabled={isLoading}
               variant="ghost"
-              className="cursor-pointer border-none"
+              className="cursor-pointer border shadow-2xl"
               onClick={onClose}
             >
               Cancel

@@ -10,42 +10,53 @@ import {
   useMembersByServerIdIfMember,
 } from "@/hooks";
 import { ChannelType, Member } from "@/models";
+import { useLoading } from "@/components/providers";
 
 const ChannelIdPage = () => {
   const router = useRouter();
-  const params = useParams<{ serverId: string ,channelId: string }>();
-
-  const {profile,isLoading: profileLoading } = useAuth();
+  const params = useParams<{ serverId: string; channelId: string }>();
+  const { showLoading, hideLoading } = useLoading();
+  const { profile, isLoading: profileLoading } = useAuth();
   const { channel, isLoading: channelLoading } = useChannelByChannelId(
     params.channelId,
     params.serverId
   );
-  const { members , isLoading: memberLoading , membersByProfileId } = useMembersByServerIdIfMember(
-   params.serverId
-  );
+  const {
+    members,
+    isLoading: memberLoading,
+    membersByProfileId,
+  } = useMembersByServerIdIfMember(params.serverId);
   const isLoading = profileLoading || channelLoading || memberLoading;
-// Lấy member hiện tại dựa theo profile.id
-const currentMember: Member | undefined = useMemo(() => {
+  // Lấy member hiện tại dựa theo profile.id
+  const currentMember: Member | undefined = useMemo(() => {
     if (!profile?.id || !membersByProfileId) return undefined;
     return membersByProfileId[profile.id];
-  }, [profile?.id, membersByProfileId]);    
+  }, [profile?.id, membersByProfileId]);
   // Điều hướng nếu không hợp lệ
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) {
+      showLoading();
+      return;
+    }
+    hideLoading();
     if (!channel || !currentMember) {
       router.push(`/servers/${params.serverId}`);
     }
-  }, [isLoading, channel, members, router, params.serverId, currentMember] );
+  }, [
+    isLoading,
+    channel,
+    members,
+    router,
+    params.serverId,
+    currentMember,
+    showLoading,
+    hideLoading,
+  ]);
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-muted-foreground animate-pulse">
-          Đang tải dữ liệu...
-        </p>
-      </div>
-    );
+    return <div>Đang tải ...</div>;
   }
-  if (!channel || !members ) { // đã test có channel và member
+  if (!channel || !members) {
+    // đã test có channel và member
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-destructive">Không thể truy cập kênh này.</p>
@@ -86,9 +97,9 @@ const currentMember: Member | undefined = useMemo(() => {
       )}
 
       {channel.type === ChannelType.AUDIO && (
-      <>
-        <MediaRoom chatId={channel.id} video={false} audio={true} />
-        {console.log("Rendering AUDIO MediaRoom", channel)}
+        <>
+          <MediaRoom chatId={channel.id} video={false} audio={true} />
+          {console.log("Rendering AUDIO MediaRoom", channel)}
         </>
       )}
 
@@ -96,7 +107,6 @@ const currentMember: Member | undefined = useMemo(() => {
         <MediaRoom chatId={channel.id} video={true} audio={true} />
       )}
     </div>
-    
   );
 };
 

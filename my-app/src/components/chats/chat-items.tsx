@@ -60,7 +60,6 @@ export const ChatItem = ({
   currentMember,
   isUpdated,
   paramValue,
-  socketQuery,
   socketBody,
 }: ChatItemProps) => {
   const params = useParams<{ serverId: string }>();
@@ -97,22 +96,24 @@ export const ChatItem = ({
   const isDirectMessage = !!socketBody?.conversationId;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (!values.content || values.content.trim() === "") return;
+      if (!values.content) return;
 
       if (!isDirectMessage) {
-        await editMessage({
+        const res1 = await editMessage({
           messageId: paramValue,
           content: values.content,
           channelId: socketBody.channelId,
           serverId: socketBody.serverId,
         });
-      } else  {
-        await editDirectMessage({
+        console.log(res1, "res1");
+      } else {
+        const res2 = await editDirectMessage({
           directMessageId: paramValue,
           content: values.content,
           conversationId: socketBody.conversationId,
-          memberId : member?.id,
+          memberId: member?.id,
         });
+        console.log(res2, "res2");
       }
 
       form.reset();
@@ -133,6 +134,7 @@ export const ChatItem = ({
   const canDeleteMessage = !deleted && (isAdmin || isModerator || isOwner);
   const canEditMessage = !deleted && isOwner && !fileUrl;
   const isImage = fileUrl;
+  const isReal = isDirectMessage ? "direct_messages" : "messages";
 
   return (
     <div className="group relative flex w-full items-center p-4 transition hover:bg-black/5">
@@ -159,7 +161,6 @@ export const ChatItem = ({
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
               {timestamp}
             </span>
-            
           </div>
           {isImage && (
             <a
@@ -216,7 +217,12 @@ export const ChatItem = ({
                     </FormItem>
                   )}
                 />
-                <Button disabled={isLoading} size="sm" variant="default">
+                <Button
+                  disabled={isLoading}
+                  size="sm"
+                  variant="default"
+                  type="submit"
+                >
                   Save
                 </Button>
               </form>
@@ -241,8 +247,8 @@ export const ChatItem = ({
             <Trash
               onClick={() =>
                 onOpen("deleteMessage", {
-                  apiUrl: `${isDirectMessage}/${paramValue}`,
-                  query: socketQuery,
+                  apiUrl: `${isReal}/${paramValue}`,
+                  body: socketBody,
                 })
               }
               className="ml-auto h-4 w-4 cursor-pointer text-zinc-500 transition hover:text-zinc-600 dark:hover:text-zinc-300"

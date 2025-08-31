@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { InitialModal } from '@/components/modals';
 import { useAuth } from '@/hooks';
+import { useLoading } from '@/components/providers';
 
 export default function AuthRequest() {
   const router = useRouter();
@@ -12,9 +13,11 @@ export default function AuthRequest() {
   const { profile } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const {showLoading,hideLoading} = useLoading()
 
   useEffect(() => {
     const checkAndRedirect = async () => {
+      showLoading("Chờ chút nhée")
       if (!profile) {
         setLoading(false);
         return;
@@ -33,20 +36,15 @@ export default function AuthRequest() {
 
       const firstServer = servers[0];
       const firstChannel = firstServer.channels[0];
-
+      hideLoading()
       router.replace(`/servers/${firstServer.id}/channels/${firstChannel.id}`);
     };
 
     checkAndRedirect();
-  }, [profile, supabase, router]);
+  }, [profile, supabase, router,showLoading,hideLoading]);
 
   if (loading) {
-  return (
-    <div className="w-full h-screen flex items-center justify-center">
-      <span className="text-sm text-muted-foreground">Đang tải dữ liệu...</span>
-    </div>
-  );
-}
+  showLoading()}
 
 
   return (

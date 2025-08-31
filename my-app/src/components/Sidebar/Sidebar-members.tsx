@@ -29,7 +29,7 @@ export const SidebarMember = ({ member }: ServerMemberProps) => {
   const icon = roleIconMap[member.role];
    const { getConversationByMembers, createConversation } = useConversation(params.serverId);
   const { members } = useMembersByServerIdIfMember(params.serverId);
-  console.log(params, "params");
+  // console.log(params, "params");
   // console.log(server?.profile_id, 'id của current')
   const memberList = Object.values(members)
   const CurrentMember = memberList.find(
@@ -37,8 +37,8 @@ export const SidebarMember = ({ member }: ServerMemberProps) => {
 );
 
   
-  console.log(profile, 'members có s ở sidebar')
-  console.log(member.id, "memberid"); //27c
+  // console.log(profile, 'members có s ở sidebar')
+  // console.log(member.id, "memberid"); //27c
   
 
   

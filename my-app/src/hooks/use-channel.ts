@@ -1,6 +1,5 @@
 
 "use client";
-import { axiosInstance } from "@/api/axiosIntance";
 import { Channel, Server } from "@/models";
 import { useServerByServerId } from "./use-server-by-id";
 import { supabase } from "@/lib/supabase/supabase";
@@ -24,18 +23,14 @@ export const useChannel = (serverId: string) => {
     channel: Channel,
     values: { name: string; type: string },
   ) => {
-    await axiosInstance.patch(
-      `/rest/v1/servers/${server.id}/channels/${channel.id}`,
-      values,
-    );
+    
+    await supabase.from("channels").update({...values},).eq("id", channel.id)
 
     await mutate();
   };
 
   const deleteChannel = async (server: Server, channel: Channel) => {
-    await axiosInstance.delete(
-      `/rest/v1/servers/${server.id}/channels/${channel.id}`,
-    );
+    await supabase.from("channels").delete().eq("id",channel.id).select();
 
     await mutate();
   };

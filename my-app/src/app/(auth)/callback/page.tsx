@@ -4,19 +4,23 @@ import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/supabase";
 import { uploadToCloudinaryFromUrl } from "@/lib/cloudinary";
+import { useLoading } from "@/components/providers";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     const handleAuthRedirect = async () => {
       try {
+        showLoading("Đang xác thực, chờ chút nhé...");
         const { data: sessionData } = await supabase.auth.getSession();
         const session = sessionData?.session;
         if (!session) return;
 
-        const { data: userData, error: userError } = await supabase.auth.getUser();
+        const { data: userData, error: userError } =
+          await supabase.auth.getUser();
         if (userError || !userData?.user?.email) {
           console.error("Lỗi lấy user:", userError?.message);
           return router.replace("/");
@@ -88,6 +92,7 @@ export default function AuthCallbackPage() {
           .order("created_at", { ascending: true })
           .limit(1);
 
+        hideLoading();
         if (channelError) {
           console.error("Lỗi lấy channel:", channelError.message);
           return router.replace(`/servers/${serverId}`);
@@ -108,7 +113,7 @@ export default function AuthCallbackPage() {
     };
 
     handleAuthRedirect();
-  }, [router]);
+  }, [router,showLoading,hideLoading]);
 
   return null;
 }
