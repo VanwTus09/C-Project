@@ -5,12 +5,12 @@ import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const handleLoginWithGoogle = async () => {
-    const SiteUrl = "http://localhost:3000";
-    // const RedirectURL = "https://realtime-chat-app-dis-mess.vercel.app";
+    // const SiteUrl = "http://localhost:3000";
+    const RedirectURL = "https://realtime-chat-app-dis-mess.vercel.app";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${SiteUrl}/callback`,
+        redirectTo: `${RedirectURL}/callback`,
       },
     });
     if (error) {
